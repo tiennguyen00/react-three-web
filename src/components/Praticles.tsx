@@ -2,7 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import Points from "./Points";
 
-const Practices = () => {
+const Practices = ({ isEndedVideo }: { isEndedVideo: boolean }) => {
   return (
     <Canvas
       camera={{
@@ -17,7 +17,7 @@ const Practices = () => {
       <OrbitControls />
       <color attach="background" args={["black"]} />
 
-      <Points />
+      <Points isEndedVideo={isEndedVideo} />
     </Canvas>
   );
 };

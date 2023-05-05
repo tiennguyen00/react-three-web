@@ -1,82 +1,74 @@
 import vertex from "raw-loader!../glsl/practicles/vertex.glsl";
 import fragment from "raw-loader!../glsl/practicles/fragment.glsl";
 import * as THREE from "three";
-import { useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
-import { useControls } from "leva";
+import { type ThreeElement, extend } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { KernelSize } from "postprocessing";
-import { gsap, Power3 } from "gsap";
+import { shaderMaterial } from "@react-three/drei";
+import { animated, easings, useSpring } from "@react-spring/three";
 
-const Points = () => {
-  const texture = useLoader(THREE.TextureLoader, "/images/1.jpeg");
+const loader = new THREE.TextureLoader();
+
+const ColorShiftMaterial = shaderMaterial(
+  {
+    uTime: 0,
+    uTexture: loader.load("/images/1.jpeg"),
+    uDiffusion: 0,
+  },
+  vertex,
+  fragment
+);
+
+extend({ ColorShiftMaterial });
+
+declare module "@react-three/fiber" {
+  interface ThreeElements {
+    colorShiftMaterial: ThreeElement<typeof ColorShiftMaterial>;
+  }
+}
+
+const Points = ({ isEndedVideo }: { isEndedVideo: boolean }) => {
   const shaderRef = useRef(null);
 
-  const { diffusion, intensity } = useControls({
-    diffusion: {
-      value: 0,
-      min: 0,
-      step: 0.05,
+  const [props, api] = useSpring(
+    {
+      from: {
+        diffution: 0,
+      },
+      to: {
+        diffution: 5,
+      },
+      config: {
+        duration: 8000,
+        easing: easings.easeInOutExpo,
+      },
+      delay: 3000,
     },
-    intensity: {
-      value: 0.5,
-      step: 0.1,
-      min: 0.1,
-    },
-    luminanceThreshold: {
-      value: 0.9,
-      step: 0.1,
-    },
-  });
-
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-    if (shaderRef.current) {
-      (shaderRef.current as any).uniforms.uTime.value = time;
-    }
-  });
-
-  const uniforms: any = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uTexture: { value: texture },
-      uDiffusion: { value: diffusion },
-    }),
     []
   );
+
   useEffect(() => {
-    // console.log(uniforms.uDiffusion.value);
-    // const timeline = gsap.timeline({ repeat: -1, yoyo: true });
-    // timeline.to(uniforms.uDiffusion.value, {
-    //   value: 5.5,
-    //   duration: 5,
-    //   // delay: 3.962292,
-    //   ease: Power3.easeIn,
-    //   onUpdate: () => {
-    //     uniforms.uDiffusion.value += 0.1;
-    //     console.log(uniforms.uDiffusion.value);
-    //   },
-    // });
-    setTimeout(() => {
-      setInterval(() => {
-        uniforms.uDiffusion.value += 0.002;
-      }, 0.002 * 1000);
-    }, 3.962292 * 1000);
-  }, []);
+    if (isEndedVideo) api.start();
+  }, [isEndedVideo]);
+
+  const FinalMaterial: any = animated(({ ...props }) => {
+    return (
+      <>
+        <colorShiftMaterial
+          attach="material"
+          ref={shaderRef}
+          uDiffusion={props.uDiffusion}
+        />
+      </>
+    );
+  });
 
   return (
     <>
       <points>
         <planeGeometry args={[480, 820, 480, 820]} />
-        <shaderMaterial
-          attach="material"
-          ref={shaderRef}
-          side={THREE.DoubleSide}
-          uniforms={uniforms}
-          vertexShader={vertex}
-          fragmentShader={fragment}
-          uniformsNeedUpdate={true}
-        />
+        <FinalMaterial uDiffusion={props.diffution} />
       </points>
 
       <EffectComposer>
@@ -84,7 +76,7 @@ const Points = () => {
           luminanceSmoothing={0.1}
           kernelSize={KernelSize.LARGE}
           luminanceThreshold={0.1}
-          intensity={intensity}
+          intensity={0.5}
         />
       </EffectComposer>
     </>
