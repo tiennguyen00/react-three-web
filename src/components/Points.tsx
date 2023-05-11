@@ -5,7 +5,7 @@ import { type ThreeElement, extend } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { KernelSize } from "postprocessing";
-import { shaderMaterial } from "@react-three/drei";
+import { shaderMaterial, useScroll } from "@react-three/drei";
 import { animated, easings, useSpring } from "@react-spring/three";
 
 const loader = new THREE.TextureLoader();

@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { ScrollControls } from "@react-three/drei";
 import Points from "./Points";
 
 const Practices = ({ isEndedVideo }: { isEndedVideo: boolean }) => {
@@ -14,10 +14,11 @@ const Practices = ({ isEndedVideo }: { isEndedVideo: boolean }) => {
       gl={{}}
     >
       <axesHelper />
-      <OrbitControls />
       <color attach="background" args={["black"]} />
 
-      <Points isEndedVideo={isEndedVideo} />
+      <ScrollControls pages={3} distance={1}>
+        <Points isEndedVideo={isEndedVideo} />
+      </ScrollControls>
     </Canvas>
   );
 };
