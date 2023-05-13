@@ -1,14 +1,14 @@
 import { useGLTF } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { GroupProps, useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import * as THREE from "three";
 
-const Switches = ({ props }: { props?: THREE.Group }) => {
+const Switches = ({ props }: { props?: GroupProps }) => {
   const models = useGLTF("/models/witch_journey/scene.gltf");
   const { camera } = useThree();
 
   useEffect(() => {
-    camera.lookAt(new THREE.Vector3(0, 4.5, 0));
+    camera.lookAt(new THREE.Vector3(-2, 5, 0));
   }, []);
 
   return (
