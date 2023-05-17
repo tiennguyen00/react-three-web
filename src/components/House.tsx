@@ -6,12 +6,19 @@ source: https://sketchfab.com/3d-models/fantasy-town-0db322fa7a614975b83753a37c4
 title: Fantasy Town
 */
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
-import { GroupProps } from "@react-three/fiber";
+import { GroupProps, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
 
 function Home({ props }: { props: GroupProps }) {
   const { nodes, materials }: any = useGLTF("/models/fantasy_town.glb");
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.lookAt(new THREE.Vector3(-2, 5, 0));
+  }, []);
+
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]} scale={0.08}>
