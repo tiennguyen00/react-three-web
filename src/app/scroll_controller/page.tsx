@@ -20,7 +20,18 @@ export default function Home() {
   const refCastle = useRef<THREE.Group>(null);
 
   return (
-    <div className="flex w-screen h-screen ">
+    <div className="relative flex w-screen h-screen ">
+      <div className="absolute z-10 -translate-x-1/2 bottom-[200px] left-1/2">
+        <h1 className="text-7xl font-luckiestguy text-stroke">Welcome</h1>
+        <div className="px-4 py-2 text-black bg-white rounded-md max-w-[950px] w-full -translate-y-4">
+          <p className="font-poppins ">
+            Welcome to my playground! I created this site to experiment,
+            showcase, and host some of my favorite projects. If you&apos;re
+            reading this now, I&apos;ve given you a special sneak peek. I have a
+            lot more to add as I continue exploring and developing 3D websites!
+          </p>
+        </div>
+      </div>
       <Canvas
         camera={{
           fov: 75,

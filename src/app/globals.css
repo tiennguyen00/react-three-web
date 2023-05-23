@@ -25,3 +25,7 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.text-stroke {
+  -webkit-text-stroke: 4px #a1798a;
+}
