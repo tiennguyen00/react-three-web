@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-spring/web": "^9.7.2",
     "@react-three/drei": "^9.65.5",
     "@react-three/fiber": "^8.12.2",
     "@react-three/postprocessing": "^2.8.0",
@@ -20,6 +19,8 @@
     "classnames": "^2.3.2",
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.1",
+    "framer-motion": "^10.12.16",
+    "framer-motion-3d": "^10.12.16",
     "gsap": "^3.11.5",
     "next": "13.3.1",
     "postcss": "8.4.23",

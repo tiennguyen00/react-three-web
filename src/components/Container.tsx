@@ -1,14 +1,39 @@
-import { useFrame, useThree } from "@react-three/fiber";
+import { extend, useFrame, useThree } from "@react-three/fiber";
 import House from "./House";
 import Switches from "./Switches";
 import * as THREE from "three";
-import { Ref, useRef } from "react";
+import { Ref } from "react";
 import { useScroll } from "@react-three/drei";
 import { useControls } from "leva";
+import { LayoutCamera, motion } from "framer-motion-3d";
+import {
+  BoxGeometry,
+  Fog,
+  Mesh,
+  MeshStandardMaterial,
+  SpotLight,
+  HemisphereLight,
+  AmbientLight,
+  Group,
+  PlaneGeometry,
+} from "three";
+
+extend({
+  MeshStandardMaterial,
+  BoxGeometry,
+  Mesh,
+  Fog,
+  SpotLight,
+  HemisphereLight,
+  AmbientLight,
+  Group,
+  PlaneGeometry,
+});
 
 interface ContainerProps {
   refSwitch: Ref<THREE.Group> | undefined;
   refCastle: Ref<THREE.Group> | undefined;
+  setOnGreetAniComplete: (v: boolean) => void;
 }
 
 const initedPosition = [0.18, 0.5, 10.8];
@@ -31,7 +56,11 @@ const targetLookAt = [
   [-6, 2, -3],
 ];
 
-const Container = ({ refSwitch, refCastle }: ContainerProps) => {
+const Container = ({
+  refSwitch,
+  refCastle,
+  setOnGreetAniComplete,
+}: ContainerProps) => {
   const { camera } = useThree();
   const scroll = useScroll();
 
@@ -64,8 +93,9 @@ const Container = ({ refSwitch, refCastle }: ContainerProps) => {
   useFrame(() => {
     camera.lookAt(new THREE.Vector3());
 
-    if (scroll.offset === 0)
-      camera.position.lerp(new THREE.Vector3(...initedPosition), 0.05);
+    if (scroll.offset === 0) {
+    }
+    // camera.position.lerp(new THREE.Vector3(...initedPosition), 0.05);
     else {
       camera.position.set(
         interpolatePoints(scroll.offset - 0.0001, targetPosition)[0],
@@ -83,6 +113,19 @@ const Container = ({ refSwitch, refCastle }: ContainerProps) => {
 
   return (
     <>
+      <LayoutCamera
+        initial={{
+          x: 0.18,
+          y: 8.5,
+          z: 15.6,
+        }}
+        animate={{
+          x: initedPosition[0],
+          y: initedPosition[1],
+          z: initedPosition[2],
+        }}
+        onAnimationComplete={() => setOnGreetAniComplete(true)}
+      />
       {targetLookAt.map((i, idx) => (
         <mesh key={idx} position={new THREE.Vector3(...i)}>
           <boxGeometry />
