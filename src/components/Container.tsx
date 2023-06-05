@@ -2,10 +2,10 @@ import { extend, useFrame, useThree } from "@react-three/fiber";
 import House from "./House";
 import Switches from "./Switches";
 import * as THREE from "three";
-import { Ref } from "react";
+import { Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScroll } from "@react-three/drei";
 import { useControls } from "leva";
-import { LayoutCamera, motion } from "framer-motion-3d";
+import { LayoutCamera } from "framer-motion-3d";
 import {
   BoxGeometry,
   Fog,
@@ -17,6 +17,7 @@ import {
   Group,
   PlaneGeometry,
 } from "three";
+import CameraControl from "./utils/CameraControl";
 
 extend({
   MeshStandardMaterial,
@@ -36,34 +37,11 @@ interface ContainerProps {
   setOnGreetAniComplete: (v: boolean) => void;
 }
 
-const initedPosition = [0.18, 0.5, 10.8];
-
-const targetPosition = [
-  initedPosition,
-  [-6, 1.5, 8],
-  [10, 3.5, 8.5],
-  [2.5, 2, 4],
-  [2.5, 5.5, 5.5],
-  [-9.5, 3, -3],
-];
-
-const targetLookAt = [
-  [0, 0, 0],
-  [-4, 0.5, 5.5],
-  [8, 2.5, 6.5],
-  [2.5, 2, 1],
-  [2.5, 5, 2.5],
-  [-6, 2, -3],
-];
-
 const Container = ({
   refSwitch,
   refCastle,
   setOnGreetAniComplete,
 }: ContainerProps) => {
-  const { camera } = useThree();
-  const scroll = useScroll();
-
   const { position } = useControls({
     position: {
       value: [0, 0, 0],
@@ -90,48 +68,17 @@ const Container = ({
     return interpolatedPoint;
   }
 
-  useFrame(() => {
-    camera.lookAt(new THREE.Vector3());
-
-    if (scroll.offset === 0) {
-    }
-    // camera.position.lerp(new THREE.Vector3(...initedPosition), 0.05);
-    else {
-      camera.position.set(
-        interpolatePoints(scroll.offset - 0.0001, targetPosition)[0],
-        interpolatePoints(scroll.offset - 0.0001, targetPosition)[1],
-        interpolatePoints(scroll.offset - 0.0001, targetPosition)[2]
-      );
-
-      camera.lookAt(
-        new THREE.Vector3(
-          ...interpolatePoints(scroll.offset - 0.0001, targetLookAt)
-        )
-      );
-    }
-  });
+  console.log("reredner");
 
   return (
     <>
-      <LayoutCamera
-        initial={{
-          x: 0.18,
-          y: 8.5,
-          z: 15.6,
-        }}
-        animate={{
-          x: initedPosition[0],
-          y: initedPosition[1],
-          z: initedPosition[2],
-        }}
-        onAnimationComplete={() => setOnGreetAniComplete(true)}
-      />
-      {targetLookAt.map((i, idx) => (
+      <CameraControl setOnGreetAniComplete={setOnGreetAniComplete} />
+      {/* {targetLookAt.map((i, idx) => (
         <mesh key={idx} position={new THREE.Vector3(...i)}>
           <boxGeometry />
           <meshStandardMaterial color="red" />
         </mesh>
-      ))}
+      ))} */}
 
       <Switches
         props={{

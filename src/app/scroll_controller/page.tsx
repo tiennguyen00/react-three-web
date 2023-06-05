@@ -22,7 +22,12 @@ export default function Home() {
   const [onGreetAniComplete, setOnGreetAniComplete] = useState(false);
 
   return (
-    <div className="relative flex w-screen h-screen ">
+    <div
+      className="relative flex w-screen h-screen"
+      onScroll={() => {
+        console.log("sc");
+      }}
+    >
       <MotionConfig
         transition={{
           delay: 0.2,
