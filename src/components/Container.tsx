@@ -17,7 +17,7 @@ import {
   Group,
   PlaneGeometry,
 } from "three";
-import CameraControl from "./utils/CameraControl";
+import CameraControlFamer from "./utils/CameraControlFamer";
 
 extend({
   MeshStandardMaterial,
@@ -68,11 +68,9 @@ const Container = ({
     return interpolatedPoint;
   }
 
-  console.log("reredner");
-
   return (
     <>
-      <CameraControl setOnGreetAniComplete={setOnGreetAniComplete} />
+      <CameraControlFamer setOnGreetAniComplete={setOnGreetAniComplete} />
       {/* {targetLookAt.map((i, idx) => (
         <mesh key={idx} position={new THREE.Vector3(...i)}>
           <boxGeometry />

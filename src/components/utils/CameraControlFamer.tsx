@@ -25,7 +25,7 @@ const targetLookAt = [
   [-6, 2, -3],
 ];
 
-const CameraControl = ({ setOnGreetAniComplete }: CameraControlProps) => {
+const CameraControlFamer = ({ setOnGreetAniComplete }: CameraControlProps) => {
   const [positionCam, setPositionCam] = useState(initedPosition);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -93,4 +93,4 @@ const CameraControl = ({ setOnGreetAniComplete }: CameraControlProps) => {
   );
 };
 
-export default CameraControl;
+export default CameraControlFamer;

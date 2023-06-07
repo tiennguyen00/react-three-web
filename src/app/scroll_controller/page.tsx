@@ -11,6 +11,7 @@ import { Perf } from "r3f-perf";
 import Container from "@/components/Container";
 import { MotionCanvas } from "framer-motion-3d";
 import { MotionConfig, motion } from "framer-motion";
+import Background from "@/components/Background";
 
 /** The bloom pass is what will create glow, always set the threshold to 1, nothing will glow
          /*  except materials without tonemapping whose colors leave RGB 0-1 */
@@ -90,7 +91,7 @@ export default function Home() {
           {/* <OrbitControls /> */}
 
           <Ground />
-          {/* <Pumpkin /> */}
+          <Background />
 
           <Suspense fallback={null}>
             <ScrollControls pages={4}>
