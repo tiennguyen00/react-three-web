@@ -1,14 +1,14 @@
-import { useHelper } from "@react-three/drei";
-import { useRef } from "react";
-import { SpotLight, SpotLightHelper } from "three";
-import { folder, useControls } from "leva";
+import {useHelper} from "@react-three/drei";
+import {useRef} from "react";
+import {SpotLight, SpotLightHelper} from "three";
+import {folder, useControls} from "leva";
 
 const Light = () => {
   const refSpotLight = useRef<SpotLight>(null!);
 
   useHelper(false ?? refSpotLight, SpotLightHelper, "#9b59b6");
-  const { enable, positionSpot } = useControls({
-    enable: true,
+  const {enable, positionSpot} = useControls({
+    enable: false,
     spotLight: folder({
       positionSpot: {
         value: [10, 20, 6],

@@ -1,35 +1,14 @@
-import { extend, useFrame, useThree } from "@react-three/fiber";
 import House from "./House";
 import Switches from "./Switches";
 import * as THREE from "three";
-import { Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useScroll } from "@react-three/drei";
-import { useControls } from "leva";
-import { LayoutCamera } from "framer-motion-3d";
-import {
-  BoxGeometry,
-  Fog,
-  Mesh,
-  MeshStandardMaterial,
-  SpotLight,
-  HemisphereLight,
-  AmbientLight,
-  Group,
-  PlaneGeometry,
-} from "three";
-import CameraControlFamer from "./utils/CameraControlFamer";
-
-extend({
-  MeshStandardMaterial,
-  BoxGeometry,
-  Mesh,
-  Fog,
-  SpotLight,
-  HemisphereLight,
-  AmbientLight,
-  Group,
-  PlaneGeometry,
-});
+import {Ref} from "react";
+import {useControls} from "leva";
+import CameraControlCurve from "./utils/CameraControlCurve";
+import CameraControlFamer, {
+  targetLookAt,
+  targetPosition,
+} from "./utils/CameraControlFamer";
+import {StylizedAirPlane} from "./models/StylizedAirPlane";
 
 interface ContainerProps {
   refSwitch: Ref<THREE.Group> | undefined;
@@ -42,7 +21,7 @@ const Container = ({
   refCastle,
   setOnGreetAniComplete,
 }: ContainerProps) => {
-  const { position } = useControls({
+  const {position} = useControls({
     position: {
       value: [0, 0, 0],
       step: 0.5,
@@ -78,6 +57,8 @@ const Container = ({
         </mesh>
       ))} */}
 
+      {/* <CameraControlCurve /> */}
+
       <Switches
         props={{
           position: new THREE.Vector3(0, 0, 8),
@@ -85,6 +66,7 @@ const Container = ({
           ref: refSwitch,
         }}
       />
+      <StylizedAirPlane position={new THREE.Vector3(...targetLookAt[2])} />
       <House
         props={{
           scale: 8,

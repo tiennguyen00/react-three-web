@@ -1,5 +1,37 @@
-import { LayoutCamera } from "framer-motion-3d";
-import { useEffect, useRef, useState } from "react";
+import {extend} from "@react-three/fiber";
+import {MotionConfig} from "framer-motion";
+import {LayoutCamera} from "framer-motion-3d";
+import {useEffect, useRef, useState} from "react";
+
+import {
+  BoxGeometry,
+  Fog,
+  Mesh,
+  MeshStandardMaterial,
+  SpotLight,
+  HemisphereLight,
+  AmbientLight,
+  Group,
+  PlaneGeometry,
+  SphereGeometry,
+  CubeCamera,
+  AxesHelper,
+} from "three";
+
+extend({
+  MeshStandardMaterial,
+  BoxGeometry,
+  Mesh,
+  Fog,
+  SpotLight,
+  HemisphereLight,
+  AmbientLight,
+  Group,
+  PlaneGeometry,
+  SphereGeometry,
+  CubeCamera,
+  AxesHelper,
+});
 
 interface CameraControlProps {
   setOnGreetAniComplete: (v: boolean) => void;
@@ -7,7 +39,7 @@ interface CameraControlProps {
 
 const initedPosition = [0.18, 0.5, 10.8];
 
-const targetPosition = [
+export const targetPosition = [
   initedPosition,
   [-6, 1.5, 8],
   [10, 3.5, 8.5],
@@ -16,7 +48,7 @@ const targetPosition = [
   [-9.5, 3, -3],
 ];
 
-const targetLookAt = [
+export const targetLookAt = [
   [0, 0, 0],
   [-4, 0.5, 5.5],
   [8, 2.5, 6.5],
@@ -25,7 +57,7 @@ const targetLookAt = [
   [-6, 2, -3],
 ];
 
-const CameraControlFamer = ({ setOnGreetAniComplete }: CameraControlProps) => {
+const CameraControlFamer = ({setOnGreetAniComplete}: CameraControlProps) => {
   const [positionCam, setPositionCam] = useState(initedPosition);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -70,26 +102,34 @@ const CameraControlFamer = ({ setOnGreetAniComplete }: CameraControlProps) => {
   }, [positionCam]);
 
   return (
-    <LayoutCamera
-      key={positionCam[0] + positionCam[1] + positionCam[2]}
-      initial={{
-        x: prevPositionCam.current[0],
-        y: prevPositionCam.current[1],
-        z: prevPositionCam.current[2],
+    <MotionConfig
+      transition={{
+        delay: 0.2,
+        duration: 2,
+        ease: "easeOut",
       }}
-      animate={{
-        x: positionCam[0],
-        y: positionCam[1],
-        z: positionCam[2],
-      }}
-      onAnimationComplete={() => {
-        setOnGreetAniComplete(true);
-        isAnimating.current = false;
-      }}
-      onAnimationStart={() => {
-        isAnimating.current = true;
-      }}
-    />
+    >
+      <LayoutCamera
+        key={positionCam[0] + positionCam[1] + positionCam[2]}
+        initial={{
+          x: prevPositionCam.current[0],
+          y: prevPositionCam.current[1],
+          z: prevPositionCam.current[2],
+        }}
+        animate={{
+          x: positionCam[0],
+          y: positionCam[1],
+          z: positionCam[2],
+        }}
+        onAnimationComplete={() => {
+          setOnGreetAniComplete(true);
+          isAnimating.current = false;
+        }}
+        onAnimationStart={() => {
+          isAnimating.current = true;
+        }}
+      />
+    </MotionConfig>
   );
 };
 
