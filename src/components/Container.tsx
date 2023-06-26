@@ -21,12 +21,12 @@ const Container = ({
   refCastle,
   setOnGreetAniComplete,
 }: ContainerProps) => {
-  const {position} = useControls({
-    position: {
-      value: [0, 0, 0],
-      step: 0.5,
-    },
-  });
+  // const {position} = useControls({
+  //   position: {
+  //     value: [0, 0, 0],
+  //     step: 0.5,
+  //   },
+  // });
 
   function interpolatePoints(time: number, array: number[][]) {
     const t = Math.min(Math.max(time, 0), 1); // Clamp time between 0 and 1
@@ -49,7 +49,7 @@ const Container = ({
 
   return (
     <>
-      <CameraControlFamer setOnGreetAniComplete={setOnGreetAniComplete} />
+      {/* <CameraControlFamer setOnGreetAniComplete={setOnGreetAniComplete} /> */}
       {/* {targetLookAt.map((i, idx) => (
         <mesh key={idx} position={new THREE.Vector3(...i)}>
           <boxGeometry />
@@ -59,14 +59,14 @@ const Container = ({
 
       {/* <CameraControlCurve /> */}
 
-      <Switches
+      {/* <Switches
         props={{
           position: new THREE.Vector3(0, 0, 8),
           scale: 0.5,
           ref: refSwitch,
         }}
-      />
-      <StylizedAirPlane position={new THREE.Vector3(...targetLookAt[2])} />
+      /> */}
+      {/* <StylizedAirPlane position={new THREE.Vector3(...targetLookAt[2])} /> */}
       <House
         props={{
           scale: 8,

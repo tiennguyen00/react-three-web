@@ -13,9 +13,13 @@ import {MotionCanvas} from "framer-motion-3d";
 import {motion} from "framer-motion";
 import Background from "@/components/Background";
 import {Canvas} from "@react-three/fiber";
+import {editable as e, PerspectiveCamera, SheetProvider} from "@theatre/r3f";
+import {cameraMovementSheet, initTheatreStudio} from "@/animation/theatre";
 
 /** The bloom pass is what will create glow, always set the threshold to 1, nothing will glow
          /*  except materials without tonemapping whose colors leave RGB 0-1 */
+
+initTheatreStudio();
 
 export default function Home() {
   const refSwitch = useRef<THREE.Group>(null);
@@ -24,7 +28,7 @@ export default function Home() {
   const [onGreetAniComplete, setOnGreetAniComplete] = useState(false);
 
   return (
-    <div className="relative flex w-screen h-screen">
+    <div className="relative flex w-screen h-screen m-0">
       <motion.div className="absolute z-10 -translate-x-1/2 bottom-[80px] left-1/2">
         <motion.h1
           initial={{
@@ -62,34 +66,41 @@ export default function Home() {
         </motion.div>
       </motion.div>
 
-      <MotionCanvas
-        camera={{
-          fov: 75,
-          near: 0.1,
-          far: 100,
-        }}
-      >
-        <Perf position="top-left" />
-
-        <Light />
+      <Canvas>
+        <OrbitControls enableZoom={false} />
         <Effect />
 
-        <axesHelper args={[2]} position={[0, 5, 0]} />
-        <OrbitControls enableZoom={false} />
+        <SheetProvider sheet={cameraMovementSheet}>
+          <PerspectiveCamera
+            theatreKey="Camera"
+            makeDefault
+            position={[5, 5, -5]}
+            fov={75}
+            near={0.1}
+            far={100}
+            lookAt={[0, 0, 0]}
+          />
+          {/* <Perf position="top-left" /> */}
 
-        <Ground />
-        <Background />
+          <Light />
+          <axesHelper args={[2]} position={[0, 0, 0]} />
 
-        <Suspense fallback={null}>
-          <ScrollControls pages={4}>
-            <Container
-              refSwitch={refSwitch}
-              refCastle={refCastle}
-              setOnGreetAniComplete={setOnGreetAniComplete}
-            />
-          </ScrollControls>
-        </Suspense>
-      </MotionCanvas>
+          {/* <Ground /> */}
+          <ambientLight />
+
+          <Background />
+
+          <Suspense fallback={null}>
+            <ScrollControls pages={4}>
+              <Container
+                refSwitch={refSwitch}
+                refCastle={refCastle}
+                setOnGreetAniComplete={setOnGreetAniComplete}
+              />
+            </ScrollControls>
+          </Suspense>
+        </SheetProvider>
+      </Canvas>
     </div>
   );
 }

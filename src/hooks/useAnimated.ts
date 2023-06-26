@@ -1,3 +1,0 @@
-const useAnimated = () => {};
-
-export { useAnimated };
