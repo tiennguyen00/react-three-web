@@ -3,18 +3,19 @@
 import Effect from "@/components/Effect";
 import Ground from "@/components/Ground";
 import Light from "@/components/Light";
-import {OrbitControls, ScrollControls} from "@react-three/drei";
+import { OrbitControls, ScrollControls } from "@react-three/drei";
 
-import {Suspense, useRef, useState} from "react";
+import { Suspense, useRef, useState } from "react";
 import * as THREE from "three";
-import {Perf} from "r3f-perf";
+import { Perf } from "r3f-perf";
 import Container from "@/components/Container";
-import {MotionCanvas} from "framer-motion-3d";
-import {motion} from "framer-motion";
+import { MotionCanvas } from "framer-motion-3d";
+import { motion } from "framer-motion";
 import Background from "@/components/Background";
-import {Canvas} from "@react-three/fiber";
-import {editable as e, PerspectiveCamera, SheetProvider} from "@theatre/r3f";
-import {cameraMovementSheet, initTheatreStudio} from "@/animation/theatre";
+import { Canvas } from "@react-three/fiber";
+import { editable as e, SheetProvider } from "@theatre/r3f";
+import { cameraMovementSheet, initTheatreStudio } from "@/animation/theatre";
+import CameraControlTheatre from "@/components/utils/CameraControlTheatre";
 
 /** The bloom pass is what will create glow, always set the threshold to 1, nothing will glow
          /*  except materials without tonemapping whose colors leave RGB 0-1 */
@@ -35,7 +36,7 @@ export default function Home() {
             opacity: 0,
             y: -20,
           }}
-          animate={!onGreetAniComplete ? "" : {opacity: 1, y: 0}}
+          animate={!onGreetAniComplete ? "" : { opacity: 1, y: 0 }}
           transition={{
             delay: 0.6,
             type: "spring",
@@ -51,7 +52,7 @@ export default function Home() {
             opacity: 0,
             y: -20,
           }}
-          animate={!onGreetAniComplete ? "" : {opacity: 1, y: 0}}
+          animate={!onGreetAniComplete ? "" : { opacity: 1, y: 0 }}
           transition={{
             duration: 0.4,
           }}
@@ -67,20 +68,12 @@ export default function Home() {
       </motion.div>
 
       <Canvas>
-        <OrbitControls enableZoom={false} />
+        {/* <OrbitControls enableZoom={false} /> */}
         <Effect />
 
         <SheetProvider sheet={cameraMovementSheet}>
-          <PerspectiveCamera
-            theatreKey="Camera"
-            makeDefault
-            position={[5, 5, -5]}
-            fov={75}
-            near={0.1}
-            far={100}
-            lookAt={[0, 0, 0]}
-          />
           {/* <Perf position="top-left" /> */}
+          <CameraControlTheatre />
 
           <Light />
           <axesHelper args={[2]} position={[0, 0, 0]} />
