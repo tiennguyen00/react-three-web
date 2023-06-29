@@ -3,13 +3,14 @@
 import studio from "@theatre/studio";
 import extension from "@theatre/r3f/dist/extension";
 import {getProject} from "@theatre/core";
+import state from "./Jun29_TheatreState.json";
 
 export function initTheatreStudio() {
   studio.initialize();
   studio.extend(extension);
-  // studio.ui.hide();
+  studio.ui.hide();
 }
 
-export const cameraMovementSheet = getProject("CameraMove_Project", {}).sheet(
-  "CameraMovement"
-);
+export const cameraMovementSheet = getProject("CameraMove_Project", {
+  state,
+}).sheet("CameraMovement");

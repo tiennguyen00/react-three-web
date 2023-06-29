@@ -1,7 +1,8 @@
-import { types } from "@theatre/core";
-import { PerspectiveCamera } from "@theatre/r3f";
-import { useEffect, useRef, useState } from "react";
+import {types} from "@theatre/core";
+import {PerspectiveCamera} from "@theatre/r3f";
+import {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
+import {cameraMovementSheet} from "../../animation/theatre";
 
 const CameraControlTheatre = () => {
   const threeRef = useRef<any>();
@@ -11,7 +12,7 @@ const CameraControlTheatre = () => {
     // if `theatreObject` is `null`, we don't need to do anything
     if (!theatreObject) return;
 
-    const unsubscribe = theatreObject.onValuesChange((newValues) => {
+    const unsubscribe = theatreObject.onValuesChange(newValues => {
       if (threeRef.current) {
         threeRef.current.lookAt(
           new THREE.Vector3(
@@ -24,6 +25,15 @@ const CameraControlTheatre = () => {
     });
     return unsubscribe;
   }, [theatreObject]);
+
+  useEffect(() => {
+    cameraMovementSheet.project.ready.then(() =>
+      cameraMovementSheet.sequence.play({
+        iterationCount: Infinity,
+        // range: [0, 1],
+      })
+    );
+  }, []);
 
   return (
     <PerspectiveCamera

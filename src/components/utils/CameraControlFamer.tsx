@@ -42,7 +42,7 @@ const initedPosition = [0.18, 0.5, 10.8];
 export const targetPosition = [
   initedPosition,
   [-6, 1.5, 8],
-  [10, 3.5, 8.5],
+  [3.5, 3.5, 8.5],
   [2.5, 2, 4],
   [2.5, 5.5, 5.5],
   [-9.5, 3, -3],
@@ -50,11 +50,11 @@ export const targetPosition = [
 
 export const targetLookAt = [
   [0, 0, 0],
-  [-4, 0.5, 5.5],
-  [8, 2.5, 6.5],
+  [-4, 0.5, 0.5],
+  [5.5, 2.5, 6.5],
+  [2.5, 5.5, 2.5],
   [2.5, 2, 1],
-  [2.5, 5, 2.5],
-  [-6, 2, -3],
+  [-2.5, 2.739, -2.105],
 ];
 
 const CameraControlFamer = ({setOnGreetAniComplete}: CameraControlProps) => {
