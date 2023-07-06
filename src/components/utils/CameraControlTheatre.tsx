@@ -1,6 +1,6 @@
-import { ISheetObject, types, onChange } from "@theatre/core";
-import { PerspectiveCamera, useCurrentSheet } from "@theatre/r3f";
-import { useEffect, useRef, useState } from "react";
+import {ISheetObject, types, onChange} from "@theatre/core";
+import {PerspectiveCamera, useCurrentSheet} from "@theatre/r3f";
+import {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 
 const CameraControlTheatre = () => {
@@ -9,40 +9,42 @@ const CameraControlTheatre = () => {
 
   const isScrolling = useRef(false);
 
-  const directionScroll = useRef(0);
-  const index = useRef<0 | 1 | 2 | 3 | 4 | 5>(0);
   const currentSheet = useCurrentSheet();
 
-  const stops = [0, 2, 5, 8, 10, 16];
+  const stops = [0, 2, 5, 8, 10, 15.89];
 
   const handleWheeling = (e: any) => {
     if (!currentSheet || !currentSheet.project.isReady) return;
     if (isScrolling.current) return;
 
     const direction = Math.sign(e.wheelDelta);
-    const mappedStops = direction ? stops.reverse() : stops;
 
-    const nextStop = mappedStops.find((stop) =>
-      direction > 0
-        ? stop < currentSheet.sequence.position
-        : stop > currentSheet.sequence.position
-    );
+    let nextStop: number | undefined;
 
-    if (!nextStop)
+    if (direction < 0)
+      nextStop = stops.find(stop => stop > currentSheet.sequence.position);
+    else
+      nextStop = stops.findLast(stop => stop < currentSheet.sequence.position);
+
+    if (nextStop === undefined)
       currentSheet.sequence.play({
         range: [0, 2],
       });
     else {
       currentSheet.sequence.play({
-        range: [currentSheet.sequence.position, nextStop],
-        direction: direction > 0 ? "reverse" : "normal",
+        range:
+          direction < 0
+            ? [currentSheet.sequence.position, nextStop]
+            : [nextStop, currentSheet.sequence.position],
+        direction: direction < 0 ? "normal" : "reverse",
+        rate: 1.5,
       });
     }
   };
 
   useEffect(() => {
     if (!currentSheet) return;
-    onChange(currentSheet?.sequence.pointer.playing, (playing) => {
+    onChange(currentSheet?.sequence.pointer.playing, playing => {
       isScrolling.current = playing;
     });
   }, [currentSheet]);
@@ -51,7 +53,7 @@ const CameraControlTheatre = () => {
     // if `theatreObject` is `null`, we don't need to do anything
     if (!theatreObject) return;
 
-    const unsubscribe = theatreObject.onValuesChange((newValues) => {
+    const unsubscribe = theatreObject.onValuesChange(newValues => {
       if (threeRef.current) {
         threeRef.current.lookAt(
           new THREE.Vector3(
@@ -88,6 +90,9 @@ const CameraControlTheatre = () => {
           z: types.number(0),
         }),
       }}
+      attachArray={undefined}
+      attachObject={undefined}
+      attachFns={undefined}
     />
   );
 };
