@@ -1,17 +1,11 @@
 "use client";
 import Practices from "@/components/Praticles";
 // import { useSpring, animated } from "@react-spring/web";
-import { useRef, useState } from "react";
+import {useRef, useState} from "react";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isEndedVideo, setIsEndedVideo] = useState(false);
-  // const props = useSpring({
-  //   from: { opacity: 1 },
-  //   to: { opacity: 0 },
-  //   delay: (3.962292 - 0.2) * 1000,
-  //   duration: 200,
-  // });
 
   return (
     <div className="relative w-screen h-screen">

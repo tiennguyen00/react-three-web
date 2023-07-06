@@ -136,6 +136,11 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@mediapipe/tasks-vision@0.10.2-rc2":
+  version "0.10.2-rc2"
+  resolved "https://registry.yarnpkg.com/@mediapipe/tasks-vision/-/tasks-vision-0.10.2-rc2.tgz#e3fa5d84d58b9031a0e975d1e5ef8eb8e4a6fc11"
+  integrity sha512-b9ar6TEUo8I07n/jXSuKDu5HgzkDah9pe4H8BYpcubhCEahlfDD5ixE+9SQyJM4HXHXdF9nN/wRQT7rEnLz7Gg==
+
 "@next/env@13.3.1":
   version "13.3.1"
   resolved "https://registry.yarnpkg.com/@next/env/-/env-13.3.1.tgz#589707043065f6b71d411ed9b8f1ffd057c0fd4a"
@@ -476,36 +481,37 @@
   resolved "https://registry.yarnpkg.com/@react-spring/types/-/types-9.6.1.tgz#913d3a68c5cbc1124fdb18eff919432f7b6abdde"
   integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
 
-"@react-three/drei@^9.56.10":
-  version "9.68.3"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.68.3.tgz#93ceea62b44202153ac93db7f98ff37943b0255e"
-  integrity sha512-u+70dPPiM1rfJ/Wd4lbbyaC0QbQwvQd1NuMfIE78UzvMtOI8LjVLJNmdvzhAfcEL+RuqQlboSgd2/NjcLv9aDQ==
+"@react-three/drei@9.78.1":
+  version "9.78.1"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.78.1.tgz#93d31be4b7a5553689b724c95dc72cbe1ae0f9ae"
+  integrity sha512-Q7BYEt5G5pLxdNbI14Zv/nfxEAS8sYuQvIa+xDvspMQB1x6/+ULZavLoOQ5OtpJ4+n/yxoIk3XZ5l3j0gvB0cg==
   dependencies:
     "@babel/runtime" "^7.11.2"
+    "@mediapipe/tasks-vision" "0.10.2-rc2"
     "@react-spring/three" "~9.6.1"
     "@use-gesture/react" "^10.2.24"
-    camera-controls "^2.3.1"
-    detect-gpu "^5.0.14"
+    camera-controls "^2.4.2"
+    detect-gpu "^5.0.28"
     glsl-noise "^0.0.0"
     lodash.clamp "^4.0.3"
     lodash.omit "^4.5.0"
     lodash.pick "^4.4.0"
-    maath "^0.5.2"
+    maath "^0.6.0"
     meshline "^3.1.6"
     react-composer "^5.0.3"
     react-merge-refs "^1.1.0"
     stats.js "^0.17.0"
-    suspend-react "^0.0.8"
-    three-mesh-bvh "^0.5.23"
-    three-stdlib "^2.21.8"
-    troika-three-text "^0.47.1"
+    suspend-react "^0.1.3"
+    three-mesh-bvh "^0.6.0"
+    three-stdlib "^2.23.9"
+    troika-three-text "^0.47.2"
     utility-types "^3.10.0"
     zustand "^3.5.13"
 
-"@react-three/drei@^9.65.5":
-  version "9.65.5"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.65.5.tgz#b9f2d7d02b569d94a21b34853d99fb8bfbab72f7"
-  integrity sha512-zfT7MTqkK5AYU6Yhe3nJ5S0mV2+oRaXfbxU1KkHzTlipssInb5kHSYwG4Topl0n7aPVNiV4A25LgvELjCeWPvw==
+"@react-three/drei@^9.56.10":
+  version "9.68.3"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.68.3.tgz#93ceea62b44202153ac93db7f98ff37943b0255e"
+  integrity sha512-u+70dPPiM1rfJ/Wd4lbbyaC0QbQwvQd1NuMfIE78UzvMtOI8LjVLJNmdvzhAfcEL+RuqQlboSgd2/NjcLv9aDQ==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@react-spring/three" "~9.6.1"
@@ -595,6 +601,11 @@
   dependencies:
     "@theatre/dataverse" "0.5.1"
 
+"@types/draco3d@^1.4.0":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@types/draco3d/-/draco3d-1.4.2.tgz#7faccb809db2a5e19b9efb97c5f2eb9d64d527ea"
+  integrity sha512-goh23EGr6CLV6aKPwN1p8kBD/7tT5V/bLpToSbarKrwVejqNrspVrv8DhliteYkkhZYrlq/fwKZRRUzH4XN88w==
+
 "@types/json-schema@^7.0.8":
   version "7.0.11"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
@@ -674,6 +685,11 @@
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.1.tgz#4908349419104bd476a4252d04e4c3abb496748d"
   integrity sha512-xlFXPfgJR5vIuDefhaHuUM9uUgvPaXB6GKdXy2gdEh8gBWQZ2ul24AJz3foUd8NNKlSTQuWYJpCb1/pL81m1KQ==
+
+"@types/webxr@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.2.tgz#5d9627b0ffe223aa3b166de7112ac8a9460dc54f"
+  integrity sha512-szL74BnIcok9m7QwYtVmQ+EdIKwbjPANudfuvDrAF8Cljg9MKUlIoc1w5tjj9PMpeSH3U1Xnx//czQybJ0EfSw==
 
 "@typescript-eslint/parser@^5.42.0":
   version "5.59.1"
@@ -986,6 +1002,11 @@ camera-controls@^2.3.1:
   resolved "https://registry.yarnpkg.com/camera-controls/-/camera-controls-2.3.4.tgz#f372b5a4012b474df0ed0c67da7a3198d7efee0b"
   integrity sha512-swhc87YVHf9te0glBI7Oa/QBgsSCL4ZxtoR4V3vE6l7mEebsYRNL8y7Y2m2E6MrT0UTphM1S7mQqs0Sp7QTZ2g==
 
+camera-controls@^2.4.2:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/camera-controls/-/camera-controls-2.7.0.tgz#13e2895375fbd8fb3353baeada6c8bc267a60d09"
+  integrity sha512-HONMoMYHieOCQOoweS639bdWHP/P/fvVGR08imnECGVUp04mqGfsX/zp1ZufLeiAA5hA6i1JhP6SrnOwh01C0w==
+
 caniuse-lite@^1.0.30001406, caniuse-lite@^1.0.30001449, caniuse-lite@^1.0.30001464:
   version "1.0.30001481"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001481.tgz#f58a717afe92f9e69d0e35ff64df596bfad93912"
@@ -1161,6 +1182,13 @@ detect-gpu@^5.0.14:
   version "5.0.21"
   resolved "https://registry.yarnpkg.com/detect-gpu/-/detect-gpu-5.0.21.tgz#91fc05655e219a294b5030b8659ee05ce4307c48"
   integrity sha512-Dcf+4zxB3/4+7nVje3zQffJ3ksS7DiUztlNR0jC4AUF8FTBTeKWoIRxRAq4dGaRft8hEadUIDbjZbiKhCFo/Bw==
+  dependencies:
+    webgl-constants "^1.1.1"
+
+detect-gpu@^5.0.28:
+  version "5.0.31"
+  resolved "https://registry.yarnpkg.com/detect-gpu/-/detect-gpu-5.0.31.tgz#5749bea3aa56bc2ec41383b585f6cbd965619fee"
+  integrity sha512-+ZZr/deA5OvuBxod6kKFUvpZA9YR2r4fRYlAJGL7N5aUSLrY3Xgi+K4U5NHmeuk2mNC044n1YJwsq2Aw6hPmUw==
   dependencies:
     webgl-constants "^1.1.1"
 
@@ -2369,6 +2397,16 @@ maath@^0.5.2:
   resolved "https://registry.yarnpkg.com/maath/-/maath-0.5.3.tgz#777a1f9b8463c6ffb199ea43406874a357c0cd58"
   integrity sha512-ut63A4zTd9abtpi+sOHW1fPWPtAFrjK0E17eAthx1k93W/T2cWLKV5oaswyotJVDvvW1EXSdokAqhK5KOu0Qdw==
 
+maath@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/maath/-/maath-0.6.0.tgz#7841d0fb95bbb37d19b08b7c5458ef70190950d2"
+  integrity sha512-dSb2xQuP7vDnaYqfoKzlApeRcR2xtN8/f7WV/TMAkBC8552TwTLtOO0JTcSygkYMjNDPoo6V01jTw/aPi4JrMw==
+
+maath@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/maath/-/maath-0.7.0.tgz#a9a44fe2f7680959d7cc75466ac11329e96db66c"
+  integrity sha512-JQ1JZrQLDgJ59snCk2AcSb/jdGwNgGQXlLcfZChN8lmpMR7g3bpMM3ugcqGfU1ROwjVvX5CvcVJHc8TkxljG8Q==
+
 merge-value@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/merge-value/-/merge-value-1.0.0.tgz#d28f8d41c0b37426e032d1059a0d0343302de502"
@@ -3163,6 +3201,11 @@ suspend-react@^0.0.8:
   resolved "https://registry.yarnpkg.com/suspend-react/-/suspend-react-0.0.8.tgz#b0740c1386b4eb652f17affe4339915ee268bd31"
   integrity sha512-ZC3r8Hu1y0dIThzsGw0RLZplnX9yXwfItcvaIzJc2VQVi8TGyGDlu92syMB5ulybfvGLHAI5Ghzlk23UBPF8xg==
 
+suspend-react@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/suspend-react/-/suspend-react-0.1.3.tgz#a52f49d21cfae9a2fb70bd0c68413d3f9d90768e"
+  integrity sha512-aqldKgX9aZqpoDp3e8/BZ8Dm7x1pJl+qI3ZKxDN0i/IQTWUwBx/ManmlVJ3wowqbno6c2bmiIfs+Um6LbsjJyQ==
+
 synckit@^0.8.5:
   version "0.8.5"
   resolved "https://registry.yarnpkg.com/synckit/-/synckit-0.8.5.tgz#b7f4358f9bb559437f9f167eb6bc46b3c9818fa3"
@@ -3240,6 +3283,11 @@ three-mesh-bvh@^0.5.23:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.23.tgz#08e5b629144b48b11acbd433519680e457d398ed"
   integrity sha512-nyk+MskdyDgECqkxdv57UjazqqhrMi+Al9PxJN6yFtx1CTW4r0eCQ27FtyYKY5gCIWhxjtNfWYDPVy8lzx6LkA==
 
+three-mesh-bvh@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.6.0.tgz#15523c335383df658dc60063a783fdd52d045dc5"
+  integrity sha512-4/oXeqVMLuN9/P0M3L5ezIVrFiXQXKvjVTErkiSYMjSaPoWfNPAwqulSgLf4bIUPn8/Lq3rmIJwxbCuD8qDobA==
+
 three-stdlib@^2.21.8, three-stdlib@^2.8.11:
   version "2.21.9"
   resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.21.9.tgz#f963605c37589ef9de13e97befb45cfc8e6c0d59"
@@ -3248,6 +3296,23 @@ three-stdlib@^2.21.8, three-stdlib@^2.8.11:
     "@babel/runtime" "^7.16.7"
     "@types/offscreencanvas" "^2019.6.4"
     "@webgpu/glslang" "^0.0.15"
+    chevrotain "^10.1.2"
+    draco3d "^1.4.1"
+    fflate "^0.6.9"
+    ktx-parse "^0.4.5"
+    mmd-parser "^1.0.4"
+    opentype.js "^1.3.3"
+    potpack "^1.0.1"
+    zstddec "^0.0.2"
+
+three-stdlib@^2.23.9:
+  version "2.23.12"
+  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.23.12.tgz#f269398e3125c77bcd374d87f4c1da8d550e7f21"
+  integrity sha512-YFpuCu/ZVHBiK42bzEihZTA3tvEPQhaKE5tYej41AlNYXbwIWxO93fxYYrX7vs275s0yCKr6Zp6y7kI+mOklRQ==
+  dependencies:
+    "@types/draco3d" "^1.4.0"
+    "@types/offscreencanvas" "^2019.6.4"
+    "@types/webxr" "^0.5.2"
     chevrotain "^10.1.2"
     draco3d "^1.4.1"
     fflate "^0.6.9"
@@ -3300,15 +3365,35 @@ troika-three-text@^0.47.1:
     troika-worker-utils "^0.47.0"
     webgl-sdf-generator "1.1.1"
 
+troika-three-text@^0.47.2:
+  version "0.47.2"
+  resolved "https://registry.yarnpkg.com/troika-three-text/-/troika-three-text-0.47.2.tgz#fdf89059c010563bb829262b20c41f69ca79b712"
+  integrity sha512-qylT0F+U7xGs+/PEf3ujBdJMYWbn0Qci0kLqI5BJG2kW1wdg4T1XSxneypnF05DxFqJhEzuaOR9S2SjiyknMng==
+  dependencies:
+    bidi-js "^1.0.2"
+    troika-three-utils "^0.47.2"
+    troika-worker-utils "^0.47.2"
+    webgl-sdf-generator "1.1.1"
+
 troika-three-utils@^0.47.0:
   version "0.47.0"
   resolved "https://registry.yarnpkg.com/troika-three-utils/-/troika-three-utils-0.47.0.tgz#4749334ad2ae043767916f79bcc365cbb5ea64b5"
   integrity sha512-yoVTQxVbpQX3a55giIwqwq6hyJA6oYvq7kaNGwFTeicoWmTZCqqTbytafx1gcuL5umrtw5MYgsxYUSOha+xp5w==
 
+troika-three-utils@^0.47.2:
+  version "0.47.2"
+  resolved "https://registry.yarnpkg.com/troika-three-utils/-/troika-three-utils-0.47.2.tgz#af49ca694245dce631963d5fefe4e8e1b8af9044"
+  integrity sha512-/28plhCxfKtH7MSxEGx8e3b/OXU5A0xlwl+Sbdp0H8FXUHKZDoksduEKmjQayXYtxAyuUiCRunYIv/8Vi7aiyg==
+
 troika-worker-utils@^0.47.0:
   version "0.47.0"
   resolved "https://registry.yarnpkg.com/troika-worker-utils/-/troika-worker-utils-0.47.0.tgz#bea382fee55333e177955e7ba6497d64b9d9388d"
   integrity sha512-PSUc9vunDEkbE23jpgXD3PcF96jQHKjgMjS+4o5g6DEK/ZAPTnldb+FNddhppawfUcuraMFrslo0GmIC8UpEmA==
+
+troika-worker-utils@^0.47.2:
+  version "0.47.2"
+  resolved "https://registry.yarnpkg.com/troika-worker-utils/-/troika-worker-utils-0.47.2.tgz#e7c5de5f37d56c072b13fa8112bb844e048ff46c"
+  integrity sha512-mzss4MeyzUkYBppn4x5cdAqrhBHFEuVmMMgLMTyFV23x6GvQMyo+/R5E5Lsbrt7WSt5RfvewjcwD1DChRTA9lA==
 
 ts-interface-checker@^0.1.9:
   version "0.1.13"

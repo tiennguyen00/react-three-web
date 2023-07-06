@@ -9,6 +9,7 @@ export default function Home() {
     >
       <Link href="/react_spring_three">react-spring/three</Link>
       <Link href="/scroll_controller">scroll controller</Link>
+      <Link href="/portal_scene">portal_scene</Link>
     </div>
   );
 }
