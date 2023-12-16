@@ -1321,6 +1321,32 @@
   dependencies:
     tslib "^2.4.0"
 
+"@theatre/core@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@theatre/core/-/core-0.7.0.tgz#1bcc074056cf2536f2818b0ad3a59fba97142d32"
+  integrity sha512-CXRUxOaKQtb4biQa6+I6PW8wPsFj9NsZgr7VdosSB20WxlanQ8/ZR0xH/A3A3oCHdCXKaZxQlNcEOeByk4Yf/g==
+  dependencies:
+    "@theatre/dataverse" "0.7.0"
+
+"@theatre/dataverse@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@theatre/dataverse/-/dataverse-0.7.0.tgz#d8c75342ae5fd15a88b32b5a000c31fd40facf16"
+  integrity sha512-NbhTZYOqETp9g0II7R9GypErnZ47TmoT6yzyQ0vGfgVLD1a+dsPG+CLvvyzssbGG/gfDDoMzkXNwWJAwNkqFvQ==
+  dependencies:
+    lodash-es "^4.17.21"
+
+"@theatre/r3f@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@theatre/r3f/-/r3f-0.7.0.tgz#aa5f784d840fe597aeae064079aa5335c0086559"
+  integrity sha512-ta4OO1bCZeeFvxm/pbPAVvDqng+t/D08aBWlNULFLoEsd/WWUItIUCEdQQR1MiYQ0WQTKpfyp4yXV98hZvCDuw==
+
+"@theatre/studio@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@theatre/studio/-/studio-0.7.0.tgz#d5ea0bb6be6941eadb6347851371db51379df3fe"
+  integrity sha512-aBkDUBmvajWaha5dd/6Fs7sHCDMQKqVlLX9SDGsMJkKoCEb9dzwD5F5FOZCWt+OhbbwIbP9dYR6S4n6abyDkBQ==
+  dependencies:
+    "@theatre/dataverse" "0.7.0"
+
 "@types/draco3d@^1.4.0":
   version "1.4.9"
   resolved "https://registry.yarnpkg.com/@types/draco3d/-/draco3d-1.4.9.tgz#eb3eb7c5fd6f3490ab86ed7ebf36e595a9dc179b"
@@ -3556,6 +3582,11 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash-es@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
 lodash.clamp@^4.0.3:
   version "4.0.3"
