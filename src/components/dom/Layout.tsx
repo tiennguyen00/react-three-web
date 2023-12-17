@@ -2,6 +2,8 @@
 
 import { useRef, PropsWithChildren } from 'react'
 import dynamic from 'next/dynamic'
+import { Preload } from '@react-three/drei'
+import { r3f } from '@/helpers/global'
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
 
 const Layout = ({ children }: PropsWithChildren) => {
@@ -28,9 +30,13 @@ const Layout = ({ children }: PropsWithChildren) => {
           height: '100vh',
           pointerEvents: 'none',
         }}
-        eventSource={ref}
+        eventSource={ref.current || undefined}
         eventPrefix='client'
-      />
+        gl={{}}
+      >
+        <r3f.Out />
+        <Preload all />
+      </Scene>
     </div>
   )
 }

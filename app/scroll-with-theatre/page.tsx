@@ -1,6 +1,5 @@
 'use client'
 
-import { ScrollControls } from '@react-three/drei'
 import { Suspense } from 'react'
 import { SheetProvider } from '@theatre/r3f'
 import { cameraMovementSheet, initTheatreStudio } from '@/animation/theatre'
@@ -21,16 +20,14 @@ export default function Page() {
       <View className='flex h-full w-full flex-col items-center justify-center'>
         <SheetProvider sheet={cameraMovementSheet}>
           <Suspense fallback={null}>
-            <ScrollControls pages={4}>
-              <House
-                props={{
-                  scale: 8,
-                  rotation: [0, Math.PI * 0.5, 0],
-                }}
-              />
-              <Common defaultCamera={false} />
-              <CameraControlTheatre />
-            </ScrollControls>
+            <Common defaultCamera={false} />
+            <CameraControlTheatre />
+            <House
+              props={{
+                scale: 8,
+                rotation: [0, Math.PI * 0.5, 0],
+              }}
+            />
           </Suspense>
         </SheetProvider>
       </View>
