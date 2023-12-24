@@ -29,7 +29,7 @@ const Layout = ({ children }: PropsWithChildren) => {
           top: 0,
           left: 0,
           width: '100vw',
-          height: '100%',
+          height: '100vh',
           pointerEvents: 'none',
         }}
         eventSource={ref.current || undefined}
