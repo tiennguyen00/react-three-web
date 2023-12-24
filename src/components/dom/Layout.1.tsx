@@ -1,10 +1,8 @@
 'use client'
-
 import { useRef, PropsWithChildren } from 'react'
-import dynamic from 'next/dynamic'
 import { Preload } from '@react-three/drei'
 import { r3f } from '@/helpers/global'
-const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
+import { Scene } from './Layout'
 
 const Layout = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -24,13 +22,13 @@ const Layout = ({ children }: PropsWithChildren) => {
       <Scene
         id='scene-canvas'
         style={{
-          position: 'fixed',
+          // position: 'fixed',
           overflow: 'auto',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100%',
-          pointerEvents: 'none',
+          // top: 0,
+          // left: 0,
+          // width: '100vw',
+          // height: '100vh',
+          // pointerEvents: 'none',
         }}
         eventSource={ref.current || undefined}
         eventPrefix='client'
@@ -42,5 +40,3 @@ const Layout = ({ children }: PropsWithChildren) => {
     </div>
   )
 }
-
-export { Layout }
