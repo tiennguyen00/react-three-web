@@ -9,6 +9,7 @@ import {
   useScroll,
   OrbitControls,
   PointMaterial,
+  MeshTransmissionMaterial,
 } from '@react-three/drei'
 import { Common } from '@/components/canvas/View'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -19,15 +20,16 @@ import fragmentShader from '@/templates/Shader/glsl/particles-simulation.frag'
 import vertextParRender from '@/templates/Shader/glsl/particles-render.vert'
 import fragmentParRender from '@/templates/Shader/glsl/particles-render.frag'
 import { getModelGeometry } from '@/utils/shared'
+import FBOParticles from '@/components/shared/FBOParticles'
 
-const makeTexture = (g) => {
+const makeTexture = (g: THREE.BufferGeometry<THREE.NormalBufferAttributes>) => {
   let vertAmount = g.attributes.position.count
   let texWidth = Math.ceil(Math.sqrt(vertAmount))
   let texHeight = Math.ceil(vertAmount / texWidth)
 
   let data = new Float32Array(texWidth * texHeight * 4)
 
-  function shuffleArrayByThree(array) {
+  function shuffleArrayByThree(array: THREE.TypedArray) {
     const groupLength = 3
 
     let numGroups = Math.floor(array.length / groupLength)
@@ -50,17 +52,17 @@ const makeTexture = (g) => {
   for (let i = 0; i < vertAmount; i++) {
     //let f = Math.floor(Math.random() * (randomTemp.length / 3) );
 
-    const x = g.attributes.position.array[i * 3 + 0]
-    const y = g.attributes.position.array[i * 3 + 1]
-    const z = g.attributes.position.array[i * 3 + 2]
-    const w = 0
+    const red = g.attributes.position.array[i * 3 + 0]
+    const green = g.attributes.position.array[i * 3 + 1]
+    const blue = g.attributes.position.array[i * 3 + 2]
+    const alpha = 0
 
     //randomTemp.splice(f * 3, 3);
 
-    data[i * 4 + 0] = x
-    data[i * 4 + 1] = y
-    data[i * 4 + 2] = z
-    data[i * 4 + 3] = w
+    data[i * 4 + 0] = red
+    data[i * 4 + 1] = green
+    data[i * 4 + 2] = blue
+    data[i * 4 + 3] = alpha
   }
 
   let dataTexture = new THREE.DataTexture(data, texWidth, texHeight, THREE.RGBAFormat, THREE.FloatType)
@@ -69,10 +71,10 @@ const makeTexture = (g) => {
   return dataTexture
 }
 
-const MainBody = () => {
-  const width = 256,
-    height = 256
-  const three = useThree()
+const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
+  const width = 512,
+    height = 512,
+    range = 1.0 / pageQuantity
 
   const conan = useGLTF('/models/boy.glb')
   const conanGeometry = useMemo(() => {
@@ -81,55 +83,31 @@ const MainBody = () => {
   }, [conan.nodes])
 
   const refGeoParticles = useRef<THREE.BufferGeometry>(null)
-  const refGeoParticlesP = useRef<THREE.BufferGeometry>(null)
 
   const uTextureA = makeTexture(conanGeometry)
-  // const data = useScroll()
-  let renderTarget = useFBO(width, height, {
-    minFilter: THREE.NearestFilter, // Important because we want to sample square pixels
-    magFilter: THREE.NearestFilter,
-    generateMipmaps: false, // No need
-    colorSpace: THREE.SRGBColorSpace, // No need
-    depthBuffer: false, // No need
-    stencilBuffer: false, // No need
-    format: THREE.RGBAFormat, // Or RGBAFormat instead (to have a color for each particle, for example)
-    type: THREE.FloatType, // Important because we need precise coordinates (not ints)
-  })
+  const data = useScroll()
 
-  const simGeoParticles = useMemo(
-    () => ({
+  const simGeoParticles = useMemo(() => {
+    return {
       uniforms: {
-        uTextureA: { value: uTextureA },
+        uTextureA: { type: 't', value: uTextureA },
         uTime: { value: 0 },
-        uScroll: { value: 0 },
+        uScroll: { value: data.offset },
         uTreePos: { value: new THREE.Vector3() },
       },
       defines: {
-        uTotalModels: parseFloat('1').toFixed(2),
+        uTotalModels: pageQuantity.toFixed(2),
       },
       vertexShader,
       fragmentShader,
-    }),
-    [uTextureA],
-  )
+    }
+  }, [data.offset, pageQuantity, uTextureA])
   useEffect(() => {
     if (refGeoParticles.current) {
       const positions = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0])
       const uv = new Float32Array([0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0])
       refGeoParticles.current.setAttribute('position', new THREE.BufferAttribute(positions, 3))
       refGeoParticles.current.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
-    }
-
-    if (refGeoParticlesP.current) {
-      const length = width * height
-      let vertices = new Float32Array(length * 3)
-      for (let i = 0; i < length; i++) {
-        let i3 = i * 3
-        vertices[i3 + 0] = (i % width) / width
-        vertices[i3 + 1] = i / width / height
-        vertices[i3 + 2] = 0
-      }
-      refGeoParticlesP.current.setAttribute('position', new THREE.BufferAttribute(vertices, 3))
     }
   }, [])
 
@@ -140,11 +118,11 @@ const MainBody = () => {
         uSize: { value: 12 },
         uTime: { value: 0 },
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-        uScroll: { value: 0.0 },
+        uScroll: { value: data.offset },
       },
       defines: {
-        uTotalModels: parseFloat('1').toFixed(2),
-        uRange: 1.0,
+        uTotalModels: pageQuantity.toFixed(2),
+        uRange: range,
       },
       vertexShader: vertextParRender,
       fragmentShader: fragmentParRender,
@@ -152,41 +130,35 @@ const MainBody = () => {
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     }),
-    [],
+    [data.offset, pageQuantity, range],
   )
 
-  useFrame(({ gl, camera, scene }) => {
-    gl.setRenderTarget(renderTarget)
-    gl.clear()
-    gl.render(scene, camera)
-    gl.setRenderTarget(null)
+  const particlesPosition = useMemo(() => {
+    const length = width * height
 
-    if (refPoint.current) {
-      refPoint.current.material.uniforms.uPositions.value = renderTarget.texture
+    let vertices = new Float32Array(length * 3)
+    for (let i = 0; i < length; i++) {
+      let i3 = i * 3
+      vertices[i3 + 0] = (i % width) / width
+      vertices[i3 + 1] = i / width / height
+      vertices[i3 + 2] = 0
     }
-  })
+    return vertices
+  }, [])
 
-  const refPoint = useRef<THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.ShaderMaterial>>(null)
+  useFrame(({ gl, camera, scene, controls }) => {})
 
   return (
-    <>
-      <mesh>
-        <bufferGeometry ref={refGeoParticles} />
-        <shaderMaterial args={[simGeoParticles]} />
-      </mesh>
-      <points ref={refPoint}>
-        <bufferGeometry ref={refGeoParticlesP} />
-        <shaderMaterial args={[renderMatParticles]} />
-      </points>
-    </>
+    <FBOParticles
+      simGeoParticles={simGeoParticles}
+      renderMatParticles={renderMatParticles}
+      particlesPosition={particlesPosition}
+    />
   )
-}
-
-const Helu = () => {
-  return <MainBody />
 }
 
 const Page = () => {
+  const pageQuantity = 4
   return (
     <Canvas
       id='canvas-custom'
@@ -197,10 +169,10 @@ const Page = () => {
         alpha: false,
       }}
     >
-      <ScrollControls pages={4} damping={0.1}>
+      <ScrollControls pages={pageQuantity} damping={0.1}>
         <Common />
         <Scroll>
-          <Helu />
+          <MainBody pageQuantity={pageQuantity} />
         </Scroll>
       </ScrollControls>
       <OrbitControls />
