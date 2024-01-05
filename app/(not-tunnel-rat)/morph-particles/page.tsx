@@ -1,16 +1,6 @@
 'use client'
 
-import {
-  Points,
-  Scroll,
-  ScrollControls,
-  useFBO,
-  useGLTF,
-  useScroll,
-  OrbitControls,
-  PointMaterial,
-  MeshTransmissionMaterial,
-} from '@react-three/drei'
+import { Scroll, ScrollControls, useGLTF, useScroll, OrbitControls } from '@react-three/drei'
 import { Common } from '@/components/canvas/View'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -19,72 +9,24 @@ import vertexShader from '@/templates/Shader/glsl/particles-simulation.vert'
 import fragmentShader from '@/templates/Shader/glsl/particles-simulation.frag'
 import vertextParRender from '@/templates/Shader/glsl/particles-render.vert'
 import fragmentParRender from '@/templates/Shader/glsl/particles-render.frag'
-import { getModelGeometry } from '@/utils/shared'
+import { getModelGeometry, getTexture } from '@/utils/shared'
 import FBOParticles from '@/components/shared/FBOParticles'
-
-const makeTexture = (g: THREE.BufferGeometry<THREE.NormalBufferAttributes>) => {
-  let vertAmount = g.attributes.position.count
-  let texWidth = Math.ceil(Math.sqrt(vertAmount))
-  let texHeight = Math.ceil(vertAmount / texWidth)
-
-  let data = new Float32Array(texWidth * texHeight * 4)
-
-  function shuffleArrayByThree(array: THREE.TypedArray) {
-    const groupLength = 3
-
-    let numGroups = Math.floor(array.length / groupLength)
-
-    for (let i = numGroups - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-
-      for (let k = 0; k < groupLength; k++) {
-        let temp = array[i * groupLength + k]
-        array[i * groupLength + k] = array[j * groupLength + k]
-        array[j * groupLength + k] = temp
-      }
-    }
-
-    return array
-  }
-
-  shuffleArrayByThree(g.attributes.position.array)
-
-  for (let i = 0; i < vertAmount; i++) {
-    //let f = Math.floor(Math.random() * (randomTemp.length / 3) );
-
-    const red = g.attributes.position.array[i * 3 + 0]
-    const green = g.attributes.position.array[i * 3 + 1]
-    const blue = g.attributes.position.array[i * 3 + 2]
-    const alpha = 0
-
-    //randomTemp.splice(f * 3, 3);
-
-    data[i * 4 + 0] = red
-    data[i * 4 + 1] = green
-    data[i * 4 + 2] = blue
-    data[i * 4 + 3] = alpha
-  }
-
-  let dataTexture = new THREE.DataTexture(data, texWidth, texHeight, THREE.RGBAFormat, THREE.FloatType)
-  dataTexture.needsUpdate = true
-
-  return dataTexture
-}
 
 const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
   const width = 512,
     height = 512,
     range = 1.0 / pageQuantity
 
-  const conan = useGLTF('/models/boy.glb')
+  const conan = useGLTF('/models/lucille__vgdc.glb')
   const conanGeometry = useMemo(() => {
     const merge = getModelGeometry(conan.nodes)
     return merge
   }, [conan.nodes])
+  console.log('conan: ', conan)
 
   const refGeoParticles = useRef<THREE.BufferGeometry>(null)
 
-  const uTextureA = makeTexture(conanGeometry)
+  const uTextureA = getTexture(conanGeometry)
   const data = useScroll()
 
   const simGeoParticles = useMemo(() => {
