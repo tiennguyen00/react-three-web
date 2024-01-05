@@ -17,24 +17,33 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     height = 512,
     range = 1.0 / pageQuantity
 
-  const conan = useGLTF('/models/lucille__vgdc.glb')
-  const conanGeometry = useMemo(() => {
-    const merge = getModelGeometry(conan.nodes)
+  const dragon = useGLTF('/models/demon_dragon.glb')
+  const dragonGeometry = useMemo(() => {
+    const merge = getModelGeometry(dragon.nodes)
     return merge
-  }, [conan.nodes])
-  console.log('conan: ', conan)
+  }, [dragon.nodes])
+
+  const boy = useGLTF('/models/boy.glb')
+  const boyGeometry = useMemo(() => {
+    const merge = getModelGeometry(boy.nodes)
+    return merge
+  }, [boy.nodes])
 
   const refGeoParticles = useRef<THREE.BufferGeometry>(null)
 
-  const uTextureA = getTexture(conanGeometry)
+  dragonGeometry.rotateY((3 * Math.PI) / 4)
+
+  const uTextureA = getTexture(dragonGeometry)
+  const uTextureB = getTexture(boyGeometry)
   const data = useScroll()
 
   const simGeoParticles = useMemo(() => {
     return {
       uniforms: {
         uTextureA: { type: 't', value: uTextureA },
+        uTextureB: { type: 't', value: uTextureB },
         uTime: { value: 0 },
-        uScroll: { value: data.offset },
+        uScroll: { value: 0 },
         uTreePos: { value: new THREE.Vector3() },
       },
       defines: {
@@ -43,7 +52,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
       vertexShader,
       fragmentShader,
     }
-  }, [data.offset, pageQuantity, uTextureA])
+  }, [pageQuantity, uTextureA, uTextureB])
   useEffect(() => {
     if (refGeoParticles.current) {
       const positions = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0])
@@ -60,7 +69,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
         uSize: { value: 12 },
         uTime: { value: 0 },
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-        uScroll: { value: data.offset },
+        uScroll: { value: 0 },
       },
       defines: {
         uTotalModels: pageQuantity.toFixed(2),
@@ -72,7 +81,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     }),
-    [data.offset, pageQuantity, range],
+    [pageQuantity, range],
   )
 
   const particlesPosition = useMemo(() => {
@@ -88,7 +97,10 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     return vertices
   }, [])
 
-  useFrame(({ gl, camera, scene, controls }) => {})
+  useFrame(({ gl, camera, scene, controls }) => {
+    renderMatParticles.uniforms.uScroll.value = data.offset
+    simGeoParticles.uniforms.uScroll.value = data.offset
+  })
 
   return (
     <FBOParticles
@@ -104,18 +116,20 @@ const Page = () => {
   return (
     <Canvas
       id='canvas-custom'
-      className='flex h-full w-full flex-col items-center justify-center'
+      className='fixed left-0 top-0 flex outline-none'
       gl={{
         powerPreference: 'high-performance',
         antialias: false,
         alpha: false,
       }}
+      camera={{
+        position: [2, 2, 2],
+      }}
     >
+      <axesHelper />
       <ScrollControls pages={pageQuantity} damping={0.1}>
         <Common />
-        <Scroll>
-          <MainBody pageQuantity={pageQuantity} />
-        </Scroll>
+        <MainBody pageQuantity={pageQuantity} />
       </ScrollControls>
       <OrbitControls />
     </Canvas>

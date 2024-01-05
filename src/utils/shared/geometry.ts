@@ -3,7 +3,7 @@ import * as THREE from "three"
 export const getModelGeometry = (nodes: {
     [name: string]: THREE.Object3D<THREE.Object3DEventMap>;
 }) => {
-  let mergedVertices = []
+  let mergedVertices: number[] = []
 
     // Traverse the loaded nodes and collect vertices
     Object.keys(nodes).forEach((key) => {
@@ -14,6 +14,7 @@ export const getModelGeometry = (nodes: {
         mergedVertices = mergedVertices.concat(Array.from(vertices))
       }
     })
+    
 
     // Create a new geometry with the collected vertices
     const geometry = new THREE.BufferGeometry()
