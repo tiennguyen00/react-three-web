@@ -9,6 +9,8 @@ import vertexShader from '@/templates/Shader/glsl/particles-simulation.vert'
 import fragmentShader from '@/templates/Shader/glsl/particles-simulation.frag'
 import vertextParRender from '@/templates/Shader/glsl/particles-render.vert'
 import fragmentParRender from '@/templates/Shader/glsl/particles-render.frag'
+import vertextAnimRender from '@/templates/Shader/glsl/horse-particles.vert'
+import fragmentAnimRender from '@/templates/Shader/glsl/horse-particles.frag'
 import { getModelGeometry, getTexture } from '@/utils/shared'
 import FBOParticles from '@/components/shared/FBOParticles'
 
@@ -17,7 +19,9 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     height = 512,
     range = 1.0 / pageQuantity
 
-  const dragon = useGLTF('/models/demon_dragon.glb')
+  const dragon = useGLTF('/models/horse.glb')
+  const dragonAnim = dragon.animations
+  const dragonScene = dragon.scene
   const dragonGeometry = useMemo(() => {
     const merge = getModelGeometry(dragon.nodes)
     return merge
@@ -28,6 +32,17 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     const merge = getModelGeometry(boy.nodes)
     return merge
   }, [boy.nodes])
+  boyGeometry.scale(0.6, 0.6, 0.6)
+
+  const goku = useGLTF('/models/goku.glb')
+  const gokuGeometry = useMemo(() => {
+    const merge = getModelGeometry(goku.nodes)
+    return merge
+  }, [goku.nodes])
+  gokuGeometry.scale(0.6, 0.6, 0.3)
+  gokuGeometry.rotateY(Math.PI / 2)
+  gokuGeometry.rotateZ(-Math.PI / 4)
+  goku.scene.children[0].position.set(-2, 0, 2)
 
   const refGeoParticles = useRef<THREE.BufferGeometry>(null)
 
@@ -35,13 +50,17 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
 
   const uTextureA = getTexture(dragonGeometry)
   const uTextureB = getTexture(boyGeometry)
+  const uTextureC = getTexture(gokuGeometry)
   const data = useScroll()
+  const { camera } = useThree()
 
   const simGeoParticles = useMemo(() => {
     return {
       uniforms: {
         uTextureA: { type: 't', value: uTextureA },
         uTextureB: { type: 't', value: uTextureB },
+        uTextureC: { type: 't', value: uTextureC },
+
         uTime: { value: 0 },
         uScroll: { value: 0 },
         uTreePos: { value: new THREE.Vector3() },
@@ -52,7 +71,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
       vertexShader,
       fragmentShader,
     }
-  }, [pageQuantity, uTextureA, uTextureB])
+  }, [pageQuantity, uTextureA, uTextureB, uTextureC])
   useEffect(() => {
     if (refGeoParticles.current) {
       const positions = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0])
@@ -97,17 +116,69 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     return vertices
   }, [])
 
-  useFrame(({ gl, camera, scene, controls }) => {
+  useFrame(({ gl, camera, scene, controls, clock }, delta) => {
+    const elapedTime = clock.getElapsedTime()
     renderMatParticles.uniforms.uScroll.value = data.offset
     simGeoParticles.uniforms.uScroll.value = data.offset
+
+    renderMatParticles.uniforms.uTime.value = elapedTime
+    simGeoParticles.uniforms.uTime.value = elapedTime
+    renderAnimParticles.uniforms.uTime.value = elapedTime
+
+    mixer.current?.update(delta)
   })
 
+  useEffect(() => {
+    camera.position.set(0.5, 0.5, 1)
+    camera.lookAt(new THREE.Vector3())
+  }, [camera])
+
+  //  For animaiton model
+
+  const mixer = useRef<THREE.AnimationMixer | null>(null)
+
+  useEffect(() => {
+    if (dragonAnim.length > 0) {
+      mixer.current = new THREE.AnimationMixer(dragonScene)
+      const action = mixer.current.clipAction(dragonAnim[0])
+      action.play()
+    }
+  }, [dragonAnim, dragonScene])
+
+  const renderAnimParticles = useMemo(
+    () => ({
+      uniforms: {
+        uPositions: { value: null },
+        uSize: { value: 12 },
+        uTime: { value: 0 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uScroll: { value: 0 },
+      },
+      defines: {
+        uTotalModels: pageQuantity.toFixed(2),
+        uRange: range,
+      },
+      vertexShader: vertextAnimRender,
+      fragmentShader: fragmentAnimRender,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+    [pageQuantity, range],
+  )
+
   return (
-    <FBOParticles
-      simGeoParticles={simGeoParticles}
-      renderMatParticles={renderMatParticles}
-      particlesPosition={particlesPosition}
-    />
+    <>
+      <FBOParticles
+        simGeoParticles={simGeoParticles}
+        renderMatParticles={renderMatParticles}
+        particlesPosition={particlesPosition}
+      />
+      <points>
+        <primitive attach='geometry' object={dragonGeometry} />
+        <shaderMaterial args={[renderAnimParticles]} />
+      </points>
+    </>
   )
 }
 
