@@ -189,6 +189,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
         <primitive attach='geometry' object={mixamoGeometry} />
         <shaderMaterial args={[renderAnimParticles]} />
       </points>
+      ````
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <group scale={[0.1, 0.1, 0.1]} rotation={[0, Math.PI / 4, 0]}>
