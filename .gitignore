@@ -42,4 +42,4 @@ report.*.json
 .vscode/*-debug-profile
 
 # asset 
-/public/models/
+/public/
