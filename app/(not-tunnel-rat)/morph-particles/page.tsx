@@ -1,6 +1,6 @@
 'use client'
 
-import { Scroll, ScrollControls, useGLTF, useScroll, OrbitControls } from '@react-three/drei'
+import { Scroll, ScrollControls, useGLTF, useScroll, OrbitControls, useFBX } from '@react-three/drei'
 import { Common } from '@/components/canvas/View'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -19,13 +19,22 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     height = 512,
     range = 1.0 / pageQuantity
 
-  const dragon = useGLTF('/models/horse.glb')
-  const dragonAnim = dragon.animations
-  const dragonScene = dragon.scene
-  const dragonGeometry = useMemo(() => {
-    const merge = getModelGeometry(dragon.nodes)
+  const horse = useGLTF('/models/horse.glb')
+  const horseGeometry = useMemo(() => {
+    const merge = getModelGeometry(horse.nodes)
     return merge
-  }, [dragon.nodes])
+  }, [horse.nodes])
+  horseGeometry.scale(0.1, 0.1, 0.1)
+
+  const mixamo = useGLTF('/models/mixamo.glb')
+  const mixamoAnim = mixamo.animations
+  const mixamoScene = mixamo.scene
+  const mixamoGeometry = useMemo(() => {
+    const merge = getModelGeometry(mixamo.nodes)
+    return merge
+  }, [mixamo.nodes])
+  mixamoGeometry.rotateY((3 * Math.PI) / 4)
+  mixamoGeometry.scale(0.6, 0.6, 0.6)
 
   const boy = useGLTF('/models/boy.glb')
   const boyGeometry = useMemo(() => {
@@ -34,23 +43,12 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
   }, [boy.nodes])
   boyGeometry.scale(0.6, 0.6, 0.6)
 
-  const goku = useGLTF('/models/goku.glb')
-  const gokuGeometry = useMemo(() => {
-    const merge = getModelGeometry(goku.nodes)
-    return merge
-  }, [goku.nodes])
-  gokuGeometry.scale(0.6, 0.6, 0.3)
-  gokuGeometry.rotateY(Math.PI / 2)
-  gokuGeometry.rotateZ(-Math.PI / 4)
-  goku.scene.children[0].position.set(-2, 0, 2)
-
   const refGeoParticles = useRef<THREE.BufferGeometry>(null)
 
-  dragonGeometry.rotateY((3 * Math.PI) / 4)
-
-  const uTextureA = getTexture(dragonGeometry)
+  const uTextureA = getTexture(mixamoGeometry)
   const uTextureB = getTexture(boyGeometry)
-  const uTextureC = getTexture(gokuGeometry)
+  const uTextureC = getTexture(horseGeometry)
+
   const data = useScroll()
   const { camera } = useThree()
 
@@ -120,9 +118,10 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     const elapedTime = clock.getElapsedTime()
     renderMatParticles.uniforms.uScroll.value = data.offset
     simGeoParticles.uniforms.uScroll.value = data.offset
+    renderAnimParticles.uniforms.uScroll.value = data.offset
 
     renderMatParticles.uniforms.uTime.value = elapedTime
-    simGeoParticles.uniforms.uTime.value = elapedTime
+    // simGeoParticles.uniforms.uTime.value = elapedTime
     renderAnimParticles.uniforms.uTime.value = elapedTime
 
     mixer.current?.update(delta)
@@ -138,18 +137,18 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
   const mixer = useRef<THREE.AnimationMixer | null>(null)
 
   useEffect(() => {
-    if (dragonAnim.length > 0) {
-      mixer.current = new THREE.AnimationMixer(dragonScene)
-      const action = mixer.current.clipAction(dragonAnim[0])
+    if (mixamoAnim.length > 0) {
+      mixer.current = new THREE.AnimationMixer(mixamoScene)
+      const action = mixer.current.clipAction(mixamoAnim[0])
       action.play()
     }
-  }, [dragonAnim, dragonScene])
+  }, [mixamoAnim, mixamoScene])
 
   const renderAnimParticles = useMemo(
     () => ({
       uniforms: {
         uPositions: { value: null },
-        uSize: { value: 12 },
+        uSize: { value: 2 },
         uTime: { value: 0 },
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
         uScroll: { value: 0 },
@@ -162,10 +161,22 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
       fragmentShader: fragmentAnimRender,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      // blending: THREE.AdditiveBlending,
     }),
     [pageQuantity, range],
   )
+
+  const refMesh = useRef<THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.ShaderMaterial>>(null)
+
+  useEffect(() => {
+    if (!refMesh.current) return
+    refMesh.current.morphTargetInfluences = mixamo.nodes.Ch03.morphTargetInfluences
+    refMesh.current.morphTargetDictionary = mixamo.nodes.Ch03.morphTargetDictionary
+
+    // console.log('refMesgL: ', refMesh)
+    // console.log('mixamo: ', mixamo)
+    // console.log('horse: ', horse)
+  }, [horse, mixamo.nodes.Ch03, refMesh])
 
   return (
     <>
@@ -174,10 +185,15 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
         renderMatParticles={renderMatParticles}
         particlesPosition={particlesPosition}
       />
-      <points>
-        <primitive attach='geometry' object={dragonGeometry} />
+      <points ref={refMesh}>
+        <primitive attach='geometry' object={mixamoGeometry} />
         <shaderMaterial args={[renderAnimParticles]} />
       </points>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1} />
+      <group scale={[0.1, 0.1, 0.1]} rotation={[0, Math.PI / 4, 0]}>
+        <primitive object={mixamoScene} />
+      </group>
     </>
   )
 }
