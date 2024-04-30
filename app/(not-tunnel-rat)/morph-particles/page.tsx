@@ -21,13 +21,13 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     range = 1.0 / pageQuantity
   const three = useThree()
 
-  const knight = useGLTF('/models/knight.glb')
-  const knightGeometry = useMemo(() => {
-    const merge = getModelGeometry(knight.nodes)
-    return merge
-  }, [knight.nodes])
-  knightGeometry.rotateY((3 * Math.PI) / 4)
-  knightGeometry.scale(0.1, 0.1, 0.1)
+  // const knight = useGLTF('/models/knight.glb')
+  // const knightGeometry = useMemo(() => {
+  //   const merge = getModelGeometry(knight.nodes)
+  //   return merge
+  // }, [knight.nodes])
+  // knightGeometry.rotateY((3 * Math.PI) / 4)
+  // knightGeometry.scale(0.1, 0.1, 0.1)
 
   const horse = useGLTF('/models/horse.glb')
   const horseMesh = horse.scene.children[0]
@@ -51,7 +51,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
 
   const uTextureA = getTexture(horseGeometry)
   const uTextureB = getTexture(boyGeometry)
-  const uTextureC = getTexture(knightGeometry)
+  // const uTextureC = getTexture(knightGeometry)
 
   const data = useScroll()
   const { camera } = useThree()
@@ -61,7 +61,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
       uniforms: {
         uTextureA: { type: 't', value: uTextureA },
         uTextureB: { type: 't', value: uTextureB },
-        uTextureC: { type: 't', value: uTextureC },
+        // uTextureC: { type: 't', value: uTextureC },
 
         uTime: { value: 0 },
         uScroll: { value: 0 },
@@ -73,7 +73,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
       vertexShader,
       fragmentShader,
     }
-  }, [pageQuantity, uTextureA, uTextureB, uTextureC])
+  }, [pageQuantity, uTextureA, uTextureB])
   useEffect(() => {
     if (refGeoParticles.current) {
       const positions = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0])
@@ -181,7 +181,7 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
   })
 
   console.log('pointsMesh: ', horseMesh)
-  console.log('Knight: ', knight)
+  // console.log('Knight: ', knight)
 
   return (
     <>

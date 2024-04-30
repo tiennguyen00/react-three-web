@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic'
 import { Preload } from '@react-three/drei'
 import { r3f } from '@/helpers/global'
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: false })
+import { Perf } from 'r3f-perf'
+import * as THREE from 'three'
 
 const Layout = ({ children }: PropsWithChildren) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -38,6 +40,8 @@ const Layout = ({ children }: PropsWithChildren) => {
       >
         <r3f.Out />
         <Preload all />
+        <Perf />
+        <color args={['blue']} attach='background' />
       </Scene>
     </div>
   )
