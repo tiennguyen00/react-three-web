@@ -1,7 +1,8 @@
-import { Helper, useHelper } from '@react-three/drei'
-import React, { useEffect, useRef } from 'react'
+import { useHelper } from '@react-three/drei'
+import React, { useRef } from 'react'
 import * as THREE from 'three'
 import { DirectionalLight, DirectionalLightHelper, HemisphereLight } from 'three'
+import Skydom from '../shared/skydom/Skydom'
 
 type Props = {}
 
@@ -31,6 +32,7 @@ const Light = (props: Props) => {
         // }}
       />
       {/* <Helper type={DirectionalLightHelper} args={[5, 'red']} /> */}
+      <Skydom />
     </mesh>
   )
 }
