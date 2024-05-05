@@ -180,7 +180,6 @@ const MainBody = ({ pageQuantity }: { pageQuantity: number }) => {
     mixer.current?.update(delta)
   })
 
-  console.log('pointsMesh: ', horseMesh)
   // console.log('Knight: ', knight)
 
   return (
