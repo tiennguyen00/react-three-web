@@ -17,3 +17,11 @@
     overflow: hidden;
   }
 }
+
+/* set thiss custom css */
+@layer utilities {
+  .input-class1 {
+    @apply rounded-md text-md placeholder:text-sm;
+    text-transform: uppercase;
+  }
+}
