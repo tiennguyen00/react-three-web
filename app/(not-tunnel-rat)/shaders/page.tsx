@@ -14,11 +14,11 @@ const page = () => {
         alpha: false,
       }}
       camera={{
-        position: [0, 0, 5],
+        position: [0, 0, 1],
       }}
     >
       <color args={['#FEFEE8']} attach='background' />
-      <axesHelper />
+      {/* <axesHelper /> */}
       <Plane />
       <OrbitControls />
     </Canvas>
