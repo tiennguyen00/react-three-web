@@ -1,5 +1,6 @@
 import { Layout } from '@/components/dom/Layout'
 import '@/global.css'
+import { Canvas } from '@react-three/fiber'
 import { PropsWithChildren } from 'react'
 
 export const metadata = {

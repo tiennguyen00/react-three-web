@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import vertex from '@/components/shared/plane/plane.vert'
 import fragment from '@/components/shared/plane/plane.frag'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 
 const Plane = () => {

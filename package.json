@@ -33,6 +33,7 @@
     "eslint-config-next": "^13.4.13",
     "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-tailwindcss": "^3.13.0",
+    "leva": "^0.9.35",
     "postcss": "^8.4.27",
     "prettier": "^3.0.1",
     "r3f-perf": "^7.2.1",

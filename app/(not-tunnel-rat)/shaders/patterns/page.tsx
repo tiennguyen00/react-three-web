@@ -1,8 +1,19 @@
 'use client'
-import Plane from '@/components/shaders/plane'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import React from 'react'
+import * as THREE from 'three'
+import vertex from '@/components/shared/patterns/patterns.vert'
+import fragment from '@/components/shared/patterns/patterns.frag'
+
+const Test = () => {
+  return (
+    <mesh>
+      <planeGeometry args={[1, 1, 8, 8]} />
+      <shaderMaterial side={THREE.DoubleSide} vertexShader={vertex} fragmentShader={fragment} />
+    </mesh>
+  )
+}
 
 const page = () => {
   return (
@@ -18,8 +29,8 @@ const page = () => {
       }}
     >
       <color args={['#FEFEE8']} attach='background' />
-      <axesHelper />
-      <Plane />
+      {/* <axesHelper /> */}
+      <Test />
       <OrbitControls />
     </Canvas>
   )
