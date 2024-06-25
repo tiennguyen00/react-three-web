@@ -3,7 +3,7 @@ import { OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import React, { useEffect, useMemo, useRef } from 'react'
 import vertex from '@/components/shared/raging-sea/sea.vert'
-import fragment from '@/components/shared/raging-sea/sea.glsl'
+import fragment from '@/components/shared/raging-sea/sea.frag'
 import * as THREE from 'three'
 import { useControls } from 'leva'
 
