@@ -9,7 +9,15 @@ import { useControls } from 'leva'
 
 const Plane = () => {
   const meshRef = useRef<THREE.Mesh>(null)
-  const { uBigWavesElevation, uBigWavesFrequency, uBigWavesSpeed } = useControls('Control', {
+  const {
+    uBigWavesElevation,
+    uBigWavesFrequency,
+    uBigWavesSpeed,
+    uDepthColor,
+    uSurfaceColor,
+    uColorOffset,
+    uColorMultiplier,
+  } = useControls('Control', {
     uBigWavesElevation: {
       value: 0.2,
       step: 0.1,
@@ -24,6 +32,19 @@ const Plane = () => {
       value: 0.75,
       step: 0.1,
     },
+    uDepthColor: {
+      value: '#186691',
+    },
+    uSurfaceColor: {
+      value: '#9bd8ff',
+    },
+    uColorOffset: {
+      value: 0.08,
+      step: 0.05,
+    },
+    uColorMultiplier: {
+      value: 5,
+    },
   })
   const uniforms = useMemo(
     () => ({
@@ -31,6 +52,10 @@ const Plane = () => {
       uBigWavesFrequency: { value: new THREE.Vector2(4, 1.5) },
       uTime: { value: 0 },
       uBigWavesSpeed: { value: 0.75 },
+      uDepthColor: { value: new THREE.Color(uDepthColor) },
+      uSurfaceColor: { value: new THREE.Color(uSurfaceColor) },
+      uColorOffset: { value: 0.08 },
+      uColorMultiplier: { value: 2 },
     }),
     [],
   )
@@ -46,7 +71,20 @@ const Plane = () => {
     uniforms.uBigWavesFrequency.value.x = uBigWavesFrequency.x
     uniforms.uBigWavesFrequency.value.y = uBigWavesFrequency.y
     uniforms.uBigWavesSpeed.value = uBigWavesSpeed
-  }, [uBigWavesElevation, uniforms, uBigWavesFrequency, uBigWavesSpeed])
+    uniforms.uDepthColor.value = new THREE.Color(uDepthColor)
+    uniforms.uSurfaceColor.value = new THREE.Color(uSurfaceColor)
+    uniforms.uColorOffset.value = uColorOffset
+    uniforms.uColorMultiplier.value = uColorMultiplier
+  }, [
+    uBigWavesElevation,
+    uniforms,
+    uBigWavesFrequency,
+    uBigWavesSpeed,
+    uDepthColor,
+    uSurfaceColor,
+    uColorOffset,
+    uColorMultiplier,
+  ])
 
   return (
     <mesh ref={meshRef} rotation-x={-Math.PI * 0.5}>
