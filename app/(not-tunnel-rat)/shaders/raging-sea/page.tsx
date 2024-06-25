@@ -5,46 +5,42 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import vertex from '@/components/shared/raging-sea/sea.vert'
 import fragment from '@/components/shared/raging-sea/sea.frag'
 import * as THREE from 'three'
-import { useControls } from 'leva'
+import { folder, useControls } from 'leva'
 
 const Plane = () => {
   const meshRef = useRef<THREE.Mesh>(null)
-  const {
-    uBigWavesElevation,
-    uBigWavesFrequency,
-    uBigWavesSpeed,
-    uDepthColor,
-    uSurfaceColor,
-    uColorOffset,
-    uColorMultiplier,
-  } = useControls('Control', {
-    uBigWavesElevation: {
-      value: 0.2,
-      step: 0.1,
-    },
-    uBigWavesFrequency: {
-      value: {
-        x: 4,
-        y: 1.5,
+  const { elevationB, frequencyB, speedB, elevationS, frequencyS, speedS, interationS } = useControls('Vertext', {
+    'big-waves': folder({
+      elevationB: 0.2,
+      frequencyB: {
+        value: {
+          x: 4,
+          y: 1.5,
+        },
       },
-    },
-    uBigWavesSpeed: {
-      value: 0.75,
-      step: 0.1,
-    },
-    uDepthColor: {
-      value: '#186691',
-    },
-    uSurfaceColor: {
-      value: '#9bd8ff',
-    },
-    uColorOffset: {
-      value: 0.08,
-      step: 0.05,
-    },
-    uColorMultiplier: {
-      value: 5,
-    },
+      speedB: 0.75,
+    }),
+    'small-waves': folder({
+      elevationS: {
+        value: 0.15,
+        step: 0.05,
+      },
+      frequencyS: 3,
+      speedS: 0.2,
+      interationS: 4.0,
+    }),
+  })
+
+  const { depth, surface, offset, multiplier } = useControls('Fragment', {
+    color: folder({
+      depth: '#186691',
+      surface: '#9bd8ff',
+      offset: {
+        value: 0.15,
+        step: 0.05,
+      },
+      multiplier: 5,
+    }),
   })
   const uniforms = useMemo(
     () => ({
@@ -52,10 +48,15 @@ const Plane = () => {
       uBigWavesFrequency: { value: new THREE.Vector2(4, 1.5) },
       uTime: { value: 0 },
       uBigWavesSpeed: { value: 0.75 },
-      uDepthColor: { value: new THREE.Color(uDepthColor) },
-      uSurfaceColor: { value: new THREE.Color(uSurfaceColor) },
+      uDepthColor: { value: new THREE.Color(depth) },
+      uSurfaceColor: { value: new THREE.Color(surface) },
       uColorOffset: { value: 0.08 },
-      uColorMultiplier: { value: 2 },
+      uColorMultiplier: { value: 5 },
+
+      uSmallWavesElevation: { value: 0.15 },
+      uSmallWavesFrequency: { value: 3 },
+      uSmallWavesSpeed: { value: 0.2 },
+      uSmallIterations: { value: 4 },
     }),
     [],
   )
@@ -67,28 +68,37 @@ const Plane = () => {
   })
 
   useEffect(() => {
-    uniforms.uBigWavesElevation.value = uBigWavesElevation
-    uniforms.uBigWavesFrequency.value.x = uBigWavesFrequency.x
-    uniforms.uBigWavesFrequency.value.y = uBigWavesFrequency.y
-    uniforms.uBigWavesSpeed.value = uBigWavesSpeed
-    uniforms.uDepthColor.value = new THREE.Color(uDepthColor)
-    uniforms.uSurfaceColor.value = new THREE.Color(uSurfaceColor)
-    uniforms.uColorOffset.value = uColorOffset
-    uniforms.uColorMultiplier.value = uColorMultiplier
+    uniforms.uBigWavesElevation.value = elevationB
+    uniforms.uBigWavesFrequency.value.x = frequencyB.x
+    uniforms.uBigWavesFrequency.value.y = frequencyB.y
+    uniforms.uBigWavesSpeed.value = speedB
+    uniforms.uDepthColor.value = new THREE.Color(depth)
+    uniforms.uSurfaceColor.value = new THREE.Color(surface)
+    uniforms.uColorOffset.value = offset
+    uniforms.uColorMultiplier.value = multiplier
+
+    uniforms.uSmallWavesElevation.value = elevationS
+    uniforms.uSmallWavesFrequency.value = frequencyS
+    uniforms.uSmallWavesSpeed.value = speedS
+    uniforms.uSmallIterations.value = interationS
   }, [
-    uBigWavesElevation,
-    uniforms,
-    uBigWavesFrequency,
-    uBigWavesSpeed,
-    uDepthColor,
-    uSurfaceColor,
-    uColorOffset,
-    uColorMultiplier,
+    depth,
+    elevationB,
+    elevationS,
+    frequencyB.x,
+    frequencyB.y,
+    frequencyS,
+    interationS,
+    multiplier,
+    offset,
+    speedB,
+    speedS,
+    surface,
   ])
 
   return (
     <mesh ref={meshRef} rotation-x={-Math.PI * 0.5}>
-      <planeGeometry args={[2, 2, 128, 128]} />
+      <planeGeometry args={[2, 2, 512, 512]} />
       <shaderMaterial side={THREE.DoubleSide} vertexShader={vertex} fragmentShader={fragment} uniforms={uniforms} />
     </mesh>
   )
@@ -98,16 +108,16 @@ const page = () => {
   return (
     <Canvas
       id='canvas-custom'
-      gl={{
-        powerPreference: 'high-performance',
-        antialias: false,
-        alpha: false,
-      }}
+      // gl={{
+      //   powerPreference: 'high-performance',
+      //   antialias: false,
+      //   alpha: false,
+      // }}
       camera={{
-        position: [2, 2, 1],
+        position: [1, 1, 1],
       }}
     >
-      <color args={['#FEFEE8']} attach='background' />
+      <color args={['black']} attach='background' />
       <axesHelper />
       <Plane />
       <OrbitControls />
