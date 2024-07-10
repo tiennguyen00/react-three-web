@@ -107,7 +107,7 @@ const Plane = () => {
 const page = () => {
   return (
     <Canvas
-      id='canvas-custom'
+      id='canvas-custom-raging-see'
       // gl={{
       //   powerPreference: 'high-performance',
       //   antialias: false,
