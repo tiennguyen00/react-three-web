@@ -1,16 +1,22 @@
 'use client'
 import { OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useControls } from 'leva'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import vertex from '@/components/shared/galaxy/galaxy.vert'
 import fragment from '@/components/shared/galaxy/galaxy.frag'
 
 const PointSpin = () => {
+  const {
+    gl: { getPixelRatio },
+  } = useThree()
   const controls = useControls('Points', {
     count: 200000,
-    size: 0.005,
+    size: {
+      value: 5,
+      step: 0.5,
+    },
     radius: 5,
     branches: 3,
     spin: 1,
@@ -22,9 +28,10 @@ const PointSpin = () => {
 
   const { count, radius, branches, randomnessPower, randomness, insideColor, outsideColor, size } = controls
 
-  const { positions, colors } = useMemo(() => {
+  const { positions, colors, scales } = useMemo(() => {
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
+    const scales = new Float32Array(count)
 
     const insideColorV = new THREE.Color(insideColor)
     const outsideColorV = new THREE.Color(outsideColor)
@@ -51,19 +58,35 @@ const PointSpin = () => {
       colors[i3] = mixedColor.r
       colors[i3 + 1] = mixedColor.g
       colors[i3 + 2] = mixedColor.b
+
+      // Scale
+      scales[i] = Math.random()
     })
 
     return {
       positions,
       colors,
+      scales,
     }
   }, [branches, count, insideColor, outsideColor, radius, randomness, randomnessPower])
+
+  const uniforms = useMemo(
+    () => ({
+      uSize: { value: 5 * getPixelRatio() },
+    }),
+    [],
+  )
+
+  useEffect(() => {
+    uniforms.uSize.value = size
+  }, [size])
 
   return (
     <points>
       <bufferGeometry key={`${Object.entries(controls).flat(Infinity)}`}>
         <bufferAttribute attach='attributes-position' count={count} array={positions} itemSize={3} />
         <bufferAttribute attach='attributes-color' count={count} array={colors} itemSize={3} />
+        <bufferAttribute attach='attributes-aScale' count={count} array={scales} itemSize={1} />
       </bufferGeometry>
       {/* <pointsMaterial size={size} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} vertexColors /> */}
       <shaderMaterial
@@ -72,6 +95,7 @@ const PointSpin = () => {
         vertexColors
         vertexShader={vertex}
         fragmentShader={fragment}
+        uniforms={uniforms}
       />
     </points>
   )
