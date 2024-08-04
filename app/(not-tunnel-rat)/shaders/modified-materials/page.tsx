@@ -1,14 +1,57 @@
 'use client'
 import { Environment, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
-import React, { Suspense, useEffect } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import React, { Suspense, useEffect, useMemo } from 'react'
 import * as THREE from 'three'
+import vertexShader from '@/templates/Shader/glsl/particles-simulation.vert'
 
 const HermitModels = () => {
   const { scene } = useGLTF('/models/smith/LeePerrySmith.glb')
   const [colorMap, normalMap] = useTexture(['/models/smith/color.jpg', '/models/smith/normal.jpg'])
 
+  const uniforms = useMemo(
+    () => ({
+      uTime: {
+        value: 0,
+      },
+    }),
+    [],
+  )
+
+  const depthMaterial = new THREE.MeshDepthMaterial({
+    depthPacking: THREE.RGBADepthPacking,
+  })
+
   useEffect(() => {
+    scene.children[0].customDepthMaterial = depthMaterial
+
+    // using for custom the shadow code
+    depthMaterial.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `
+             #include <common>
+             uniform float uTime;
+             mat2 get2dRotateMatrix(float _angle)
+              {
+                return mat2(cos(_angle), - sin(_angle), sin(_angle), cos(_angle));
+              }
+            `,
+      )
+
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+              #include <begin_vertex>
+              float angle = (sin(position.y + uTime)) * 0.4;
+              mat2 rotateMatrix = get2dRotateMatrix(angle);
+              transformed.xz = rotateMatrix * transformed.xz;
+
+            `,
+      )
+      shader.uniforms.uTime = uniforms.uTime
+    }
+
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
         child.material.envMapIntensity = 1
@@ -23,11 +66,14 @@ const HermitModels = () => {
         })
         child.material = material
 
-        material.onBeforeCompile = (shader) => {
+        child.material.onBeforeCompile = (shader) => {
+          console.log('vertexShader: ', shader.vertexShader)
+
           shader.vertexShader = shader.vertexShader.replace(
             '#include <common>',
             `
              #include <common>
+             uniform float uTime;
              mat2 get2dRotateMatrix(float _angle)
               {
                 return mat2(cos(_angle), - sin(_angle), sin(_angle), cos(_angle));
@@ -39,21 +85,42 @@ const HermitModels = () => {
             '#include <begin_vertex>',
             `
               #include <begin_vertex>
-              float angle = position.y * 0.9;
-              mat2 rotateMatrix = get2dRotateMatrix(angle);
               transformed.xz = rotateMatrix * transformed.xz;
 
             `,
           )
+
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <beginnormal_vertex>',
+            `
+              #include <beginnormal_vertex>
+              float angle = (sin(position.y + uTime)) * 0.4;
+              mat2 rotateMatrix = get2dRotateMatrix(angle);
+              objectNormal.xz = rotateMatrix * objectNormal.xz;
+            `,
+          )
+
+          shader.uniforms.uTime = uniforms.uTime
         }
       }
     })
-  }, [scene, colorMap, normalMap])
+  }, [scene, colorMap, normalMap, uniforms.uTime])
+
+  useFrame((state) => {
+    const elapsedTime = state.clock.getElapsedTime()
+    uniforms.uTime.value = elapsedTime
+  })
 
   return (
-    <mesh rotation-y={Math.PI * 0.5}>
-      <primitive object={scene} />
-    </mesh>
+    <>
+      <group rotation-y={Math.PI * 0.5}>
+        <primitive object={scene} />
+      </group>
+      <mesh receiveShadow rotation-y={Math.PI} position={[0, -5, 5]}>
+        <planeGeometry args={[15, 15, 15]} />
+        <meshStandardMaterial />
+      </mesh>
+    </>
   )
 }
 
@@ -67,7 +134,7 @@ const page = () => {
       }}
       dpr={[1, 2]}
     >
-      {/* <axesHelper /> */}
+      <axesHelper />
       <directionalLight
         color='#ffffff'
         intensity={3}
