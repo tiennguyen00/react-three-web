@@ -48,6 +48,7 @@ const Smoke = () => {
           uTime: new THREE.Uniform(0),
         }}
         transparent
+        depthWrite={false}
       />
     </mesh>
   )
