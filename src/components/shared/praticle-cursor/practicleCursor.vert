@@ -1,4 +1,7 @@
 uniform vec2 uResolution;
+uniform sampler2D uTexture;
+varying vec2 vUv;
+varying float vColor;
 
 void main()
 {
@@ -11,9 +14,15 @@ void main()
     // gl_Position is a built-in variable in GLSL, represented the final position of vertex in clip space (2D screen)
     gl_Position = projectedPosition;
 
-    // Point size
+    // Picture:
+    vec4 color = texture2D(uTexture, uv);
+    float pictureIntensity = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+    vColor = pictureIntensity;
 
-    gl_PointSize = 0.3 * uResolution.y;
+    // Point size
+    gl_PointSize = 0.3 * uResolution.y * pictureIntensity;
     // viewPosition.z is a negative value
     gl_PointSize *= (1.0 / - viewPosition.z);
+
+    vUv = uv;
 }
