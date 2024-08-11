@@ -17,10 +17,10 @@ void main()
     // Picture:
     vec4 color = texture2D(uTexture, uv);
     float pictureIntensity = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
-    vColor = pictureIntensity;
+    vColor = pow(pictureIntensity, 2.0);
 
     // Point size
-    gl_PointSize = 0.3 * uResolution.y * pictureIntensity;
+    gl_PointSize = 0.15 * uResolution.y * pictureIntensity;
     // viewPosition.z is a negative value
     gl_PointSize *= (1.0 / - viewPosition.z);
 
