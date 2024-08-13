@@ -2,11 +2,24 @@ uniform vec2 uResolution;
 uniform sampler2D uTexture;
 varying vec2 vUv;
 varying float vColor;
+uniform sampler2D uDisplacementTexture;
+attribute float aIntensity;
 
 void main()
 {
+     // Displacement
+    vec3 newPosition = position;
+    vec4 displacemenTexture = texture2D(uDisplacementTexture, uv);
+    float displacementIntensity = 0.299 * displacemenTexture.r + 0.587 * displacemenTexture.g + 0.114 * displacemenTexture.b;
+    vec3 displacement = vec3(0.0, 0.0, 1.0);
+    displacement *= displacementIntensity;
+    displacement *= 3.0;
+    displacement *= aIntensity;
+
+    newPosition += displacement;
+
     // Final position
-    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+    vec4 modelPosition = modelMatrix * vec4(newPosition, 1.0);
     vec4 viewPosition = viewMatrix * modelPosition;
     // Explain the projectedPosition: 4x4 matrix that transforms the camera space coordinates (after being transformed by mv) into the clip space coordinates. 3D -> 2D.
     
