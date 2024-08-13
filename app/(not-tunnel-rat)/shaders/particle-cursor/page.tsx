@@ -14,6 +14,7 @@ const canvas = {
   height: 128,
 }
 const aspectRatio = 1.731164383561644
+const growSize = canvas.width * 0.35
 
 const CanvasWebGL = ({
   setCanvasCursor,
@@ -55,6 +56,8 @@ const CanvasWebGL = ({
     }
   })
 
+  const pointRef = useRef<THREE.Points>(null)
+
   useEffect(() => {
     const handlePointerMove = (e: MouseEvent) => {
       // e.clientX: 0 -> 1
@@ -64,35 +67,51 @@ const CanvasWebGL = ({
 
     window.addEventListener('pointermove', handlePointerMove)
 
+    pointRef.current?.geometry?.setIndex(null)
+    pointRef.current?.geometry?.deleteAttribute('normal')
+
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
     }
   }, [])
 
-  const pointRef = useRef<THREE.Points>(null)
-
   const intensitiesArray = useMemo(() => {
     // if (!pointRef.current) return
-
     const result = new Float32Array(16641)
     for (let i = 0; i < 16641; i++) {
       result[i] = Math.random()
     }
     return result
-  }, [pointRef.current])
+  }, [])
+
+  const angleArray = useMemo(() => {
+    // if (!pointRef.current) return
+    const result = new Float32Array(16641)
+    for (let i = 0; i < 16641; i++) {
+      result[i] = Math.random() * Math.PI * 2
+    }
+    return result
+  }, [])
 
   return (
     <>
       <mesh ref={planeRef} visible={false}>
         <planeGeometry args={[10 * aspectRatio, 10]} />
-        <meshBasicMaterial color='red' />
+        <meshBasicMaterial color='red' side={THREE.DoubleSide} />
       </mesh>
 
       <points ref={pointRef}>
         <planeGeometry args={[10 * aspectRatio, 10, 128, 128]}>
           <bufferAttribute attach='attributes-aIntensity' array={intensitiesArray} itemSize={1} />
+          <bufferAttribute attach='attributes-aAngle' array={angleArray} itemSize={1} />
         </planeGeometry>
-        <shaderMaterial vertexShader={vertex} fragmentShader={fragment} uniforms={uniforms} transparent />
+        <shaderMaterial
+          vertexShader={vertex}
+          fragmentShader={fragment}
+          uniforms={uniforms}
+          transparent
+          blending={THREE.AdditiveBlending}
+        />
       </points>
     </>
   )
@@ -102,10 +121,12 @@ const Canvas2D = ({
   canvasCursor,
   setTextureCanvas,
   textureCanvas,
+  alphaSpeed,
 }: {
   canvasCursor: THREE.Vector2
   setTextureCanvas: (v: THREE.CanvasTexture) => void
   textureCanvas?: THREE.CanvasTexture
+  alphaSpeed: number
 }) => {
   const refCanvas2D = useRef<HTMLCanvasElement>(null)
   const requestID = useRef<number>(-1)
@@ -127,17 +148,11 @@ const Canvas2D = ({
     // Cache the 2D context once
     if (refCanvas2D.current) {
       ctxRef.current = refCanvas2D.current.getContext('2d')
+      ctxRef.current?.fillRect(0, 0, canvas.width * aspectRatio, canvas.height)
     }
   }, [])
 
-  const growSize = canvas.width * 0.25
-  const tese2 = useRef({ x: 0, y: 0 })
-
   function playAnimation() {
-    // tese2.current = {
-    //   x: tese2.current.x +0.1,
-    //   y: tese2.current.y +0.1
-    // }
     if (textureCanvas) {
       textureCanvas.needsUpdate = true
     }
@@ -145,23 +160,26 @@ const Canvas2D = ({
     const image = imageRef.current
 
     if (ctx && image) {
-      // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height) // Clear canvas before drawing
+      /**
+       * Displacement
+       */
+
+      // Fade out
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.globalAlpha = 0.01
       ctx.fillRect(0, 0, canvas.width * aspectRatio, canvas.height)
+
+      // Draw glow
       ctx.globalCompositeOperation = 'lighten'
+      ctx.globalAlpha = alphaSpeed
       ctx.drawImage(image, canvasCursor.x - growSize * 0.5, canvasCursor.y - growSize * 0.5, growSize, growSize)
     }
 
-    requestID.current = requestAnimationFrame(playAnimation)
+    // requestID.current = requestAnimationFrame(playAnimation)
   }
 
   useEffect(() => {
     playAnimation()
-
-    return () => {
-      if (requestID.current) {
-        cancelAnimationFrame(requestID.current)
-      }
-    }
   }, [canvasCursor])
 
   return (
@@ -179,8 +197,15 @@ const Canvas2D = ({
 }
 
 const BodyCpt = () => {
-  const [canvasCursor, setCanvasCursor] = useState(new THREE.Vector2(9999, 9999))
-  const { setTextureCanvas, textureCanvas } = useParticleCursor()
+  const { setTextureCanvas, textureCanvas, canvasCursor, setCanvasCursor } = useParticleCursor()
+  const canvasCursorPrev = useRef(new THREE.Vector2(9999, 9999))
+  const alphaSpeed = useRef(1)
+
+  useEffect(() => {
+    const distance = canvasCursorPrev.current.distanceTo(canvasCursor)
+    canvasCursorPrev.current.copy(canvasCursor)
+    alphaSpeed.current = Math.min(distance * 0.1, 1)
+  }, [canvasCursor])
 
   return (
     <>
@@ -196,18 +221,22 @@ const BodyCpt = () => {
         }}
       >
         <Perf />
-        <CycleRaycast
+        {/* <CycleRaycast
           onChanged={(objects, cycle) => {
             console.log('data: ', objects)
             return null
           }}
-        />
+        /> */}
         <color args={['black']} attach='background' />
-        <axesHelper />
         <OrbitControls enableDamping />
         <CanvasWebGL setCanvasCursor={setCanvasCursor} textureCanvas={textureCanvas} />
       </Canvas>
-      <Canvas2D canvasCursor={canvasCursor} textureCanvas={textureCanvas} setTextureCanvas={setTextureCanvas} />
+      <Canvas2D
+        canvasCursor={canvasCursor}
+        alphaSpeed={alphaSpeed.current}
+        textureCanvas={textureCanvas}
+        setTextureCanvas={setTextureCanvas}
+      />
     </>
   )
 }

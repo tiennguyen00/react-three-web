@@ -4,14 +4,17 @@ varying vec2 vUv;
 varying float vColor;
 uniform sampler2D uDisplacementTexture;
 attribute float aIntensity;
+attribute float aAngle;
 
 void main()
 {
      // Displacement
     vec3 newPosition = position;
-    vec4 displacemenTexture = texture2D(uDisplacementTexture, uv);
-    float displacementIntensity = 0.299 * displacemenTexture.r + 0.587 * displacemenTexture.g + 0.114 * displacemenTexture.b;
-    vec3 displacement = vec3(0.0, 0.0, 1.0);
+    float displacementIntensity = texture(uDisplacementTexture, uv).r;
+    displacementIntensity = smoothstep(0.2, 0.5, displacementIntensity);
+
+    vec3 displacement = vec3(cos(aAngle) * 0.5, sin(aAngle) * 0.5, 1.0);
+    displacement=normalize(displacement);
     displacement *= displacementIntensity;
     displacement *= 3.0;
     displacement *= aIntensity;
