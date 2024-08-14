@@ -27,40 +27,6 @@ const CanvasWebGL = ({
   const texture = useTexture('/img/wlop-art.png')
   const planeRef = useRef<THREE.Mesh>(null)
 
-  const contextCanvas = useRef<CanvasRenderingContext2D>(null)
-  const [ctxCanvas, setCtxCanvas] = useState<CanvasRenderingContext2D>()
-  const imageRef = useRef<HTMLImageElement | null>(null)
-
-  // Create canvas2D
-  useEffect(() => {
-    const canvas2D = document.createElement('canvas')
-    canvas2D.width = canvas.width * aspectRatio
-    canvas2D.height = canvas.height
-
-    canvas2D.style.width = `${256 * aspectRatio}px`
-    canvas2D.style.height = `${256}px`
-    canvas2D.style.position = 'fixed'
-    canvas2D.style.top = '0'
-    canvas2D.style.right = '0'
-    canvas2D.style.zIndex = '1000'
-
-    document.body.append(canvas2D)
-    const ctx = canvas2D.getContext('2d')
-    ctx?.fillRect(0, 0, canvas.width * aspectRatio, canvas.height)
-    if (ctx) setCtxCanvas(ctx)
-
-    // Load inage texture
-    const image = new Image()
-    image.src = '/img/glow.png'
-    image.onload = () => {
-      imageRef.current = image
-    }
-
-    return () => {
-      document.body.removeChild(canvas2D)
-    }
-  }, [])
-
   const uniforms = useMemo(
     () => ({
       uResolution: new THREE.Uniform(
@@ -83,30 +49,8 @@ const CanvasWebGL = ({
     if (intersections.length) {
       const uv = intersections[0].uv
 
-      // Send intersection data to canvas2D
-
       if (uv) {
-        const canvasCursor = new THREE.Vector2(uv.x * canvas.width * aspectRatio, (1 - uv.y) * canvas.height)
-        if (ctxCanvas && imageRef.current) {
-          /**
-           * Displacement
-           */
-          // Fade out
-          ctxCanvas.globalCompositeOperation = 'source-over'
-          ctxCanvas.globalAlpha = 0.1
-          ctxCanvas.fillRect(0, 0, canvas.width * aspectRatio, canvas.height)
-
-          // Draw glow
-          ctxCanvas.globalCompositeOperation = 'lighten'
-          ctxCanvas.globalAlpha = 1
-          ctxCanvas.drawImage(
-            imageRef.current,
-            canvasCursor.x - growSize * 0.5,
-            canvasCursor.y - growSize * 0.5,
-            growSize,
-            growSize,
-          )
-        }
+        setCanvasCursor(new THREE.Vector2(uv.x * canvas.width * aspectRatio, (1 - uv.y) * canvas.height))
       }
     }
   })
@@ -286,12 +230,12 @@ const BodyCpt = () => {
         <OrbitControls enableDamping />
         <CanvasWebGL setCanvasCursor={setCanvasCursor} textureCanvas={textureCanvas} />
       </Canvas>
-      {/* <Canvas2D
+      <Canvas2D
         canvasCursor={canvasCursor}
         alphaSpeed={alphaSpeed.current}
         textureCanvas={textureCanvas}
         setTextureCanvas={setTextureCanvas}
-      /> */}
+      />
     </>
   )
 }
