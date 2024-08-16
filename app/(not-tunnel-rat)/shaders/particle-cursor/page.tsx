@@ -1,5 +1,5 @@
 'use client'
-import { CycleRaycast, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
+import { CycleRaycast, OrbitControls, useTexture } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -118,23 +118,21 @@ const CanvasWebGL = () => {
     }
   })
 
-  const intensitiesArray = useMemo(() => {
-    // if (!pointRef.current) return
-    const result = new Float32Array(16641)
-    for (let i = 0; i < 16641; i++) {
-      result[i] = Math.random()
-    }
-    return result
-  }, [])
+  const [attributeArray, setAttributeArray] = useState<Array<Float32Array | undefined>>([undefined, undefined])
 
-  const angleArray = useMemo(() => {
-    // if (!pointRef.current) return
-    const result = new Float32Array(16641)
-    for (let i = 0; i < 16641; i++) {
-      result[i] = Math.random() * Math.PI * 2
+  useEffect(() => {
+    if (!pointRef.current) return
+    const count = pointRef.current.geometry.attributes.position.count
+
+    const intensitiesArray = new Float32Array(count),
+      angleArray = new Float32Array(count)
+    for (let i = 0; i < count; i++) {
+      intensitiesArray[i] = Math.random()
+      angleArray[i] = Math.random() * Math.PI * 2
     }
-    return result
-  }, [])
+
+    setAttributeArray([intensitiesArray, angleArray])
+  }, [pointRef.current])
 
   return (
     <>
@@ -152,8 +150,12 @@ const CanvasWebGL = () => {
 
       <points ref={pointRef}>
         <planeGeometry args={[10 * aspectRatio, 10, 128, 128]}>
-          <bufferAttribute attach='attributes-aIntensity' array={intensitiesArray} itemSize={1} />
-          <bufferAttribute attach='attributes-aAngle' array={angleArray} itemSize={1} />
+          {attributeArray[0] && attributeArray[1] && (
+            <>
+              <bufferAttribute attach='attributes-aIntensity' array={attributeArray[0]} itemSize={1} />
+              <bufferAttribute attach='attributes-aAngle' array={attributeArray[1]} itemSize={1} />
+            </>
+          )}
         </planeGeometry>
         <shaderMaterial
           vertexShader={vertex}
@@ -167,37 +169,25 @@ const CanvasWebGL = () => {
   )
 }
 
-const BodyCpt = () => {
-  return (
-    <>
-      <Canvas
-        id='canvas-cursor-particle'
-        gl={{
-          powerPreference: 'high-performance',
-          antialias: true,
-        }}
-        camera={{
-          position: [0, 0, 32],
-          fov: 35,
-        }}
-      >
-        <Perf />
-        {/* <CycleRaycast
-          onChanged={(objects, cycle) => {
-            console.log('data: ', objects)
-            return null
-          }}
-        /> */}
-        <color args={['black']} attach='background' />
-        <OrbitControls enableDamping />
-        <CanvasWebGL />
-      </Canvas>
-    </>
-  )
-}
-
 const page = () => {
-  return <BodyCpt />
+  return (
+    <Canvas
+      id='canvas-cursor-particle'
+      gl={{
+        powerPreference: 'high-performance',
+        antialias: true,
+      }}
+      camera={{
+        position: [0, 0, 32],
+        fov: 35,
+      }}
+    >
+      <Perf />
+      <color args={['black']} attach='background' />
+      <OrbitControls enableDamping />
+      <CanvasWebGL />
+    </Canvas>
+  )
 }
 
 export default page

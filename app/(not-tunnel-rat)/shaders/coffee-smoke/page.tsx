@@ -1,7 +1,6 @@
 'use client'
 import { OrbitControls, useGLTF, useTexture } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useControls } from 'leva'
 import { useEffect, useRef } from 'react'
 import vertex from '@/components/shared/coffee/coffee.vert'
 import fragment from '@/components/shared/coffee/coffee.frag'
