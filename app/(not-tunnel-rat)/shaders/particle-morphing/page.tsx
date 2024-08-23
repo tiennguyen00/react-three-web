@@ -1,7 +1,7 @@
 'use client'
-import { CycleRaycast, OrbitControls, shaderMaterial, useGLTF, useTexture } from '@react-three/drei'
-import { Canvas, useFrame, useThree, extend, Object3DNode } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { OrbitControls, shaderMaterial, useGLTF } from '@react-three/drei'
+import { Canvas, useThree, extend, Object3DNode } from '@react-three/fiber'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import vertex from '@/components/shared/particle-morphing/particleMorphing.vert'
 import fragment from '@/components/shared/particle-morphing/particleMorphing.frag'
@@ -34,7 +34,7 @@ extend({ MorphingParticleMaterial })
 
 const Experience = () => {
   const pointRef = useRef<THREE.Points>(null)
-  const { clearColor, progess } = useControls('Points', {
+  const { clearColor, progess, colorA, colorB } = useControls('Points', {
     clearColor: '#160920',
     progess: {
       min: 0,
@@ -42,6 +42,8 @@ const Experience = () => {
       step: 0.1,
       value: 0,
     },
+    colorA: '#ff7300',
+    colorB: '#0091ff',
   })
 
   const { gl } = useThree()
@@ -52,7 +54,7 @@ const Experience = () => {
     sizesArray: Float32Array
   }>({
     positions: [],
-    index: 3,
+    index: 1,
     sizesArray: [],
   })
 
@@ -107,13 +109,18 @@ const Experience = () => {
 
   useEffect(() => {
     gl.setClearColor(clearColor)
-    pointRef.current && (pointRef.current.material.uniforms.uProgress.value = progess)
-  }, [clearColor, progess])
+    if (pointRef.current) {
+      const { uniforms } = pointRef.current.material as THREE.ShaderMaterial
+      uniforms.uProgress.value = progess
+      uniforms.uColorA.value = new THREE.Color(colorA)
+      uniforms.uColorB.value = new THREE.Color(colorB)
+    }
+  }, [clearColor, progess, colorA, colorB])
 
   useGSAP(() => {
     pointRef.current &&
       gsap.fromTo(
-        pointRef.current.material.uniforms.uProgress,
+        (pointRef.current.material as THREE.ShaderMaterial).uniforms.uProgress,
         { value: 0 },
         { value: 1, duration: 10, ease: 'linear' },
       )
