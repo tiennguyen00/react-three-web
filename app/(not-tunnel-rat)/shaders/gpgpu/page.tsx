@@ -1,10 +1,13 @@
 'use client'
-import { OrbitControls, shaderMaterial, useGLTF, useTexture } from '@react-three/drei'
+import { OrbitControls, shaderMaterial } from '@react-three/drei'
 import { Canvas, extend, Object3DNode, useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
 import vertex from '@/components/shared/gpgpu/gpgpu.vert'
 import fragment from '@/components/shared/gpgpu/gpgpu.frag'
+import gpgpuParticlesShader from '@/components/shared/gpgpu/particles.glsl'
+
 import * as THREE from 'three'
+import { useEffect, useMemo, useRef } from 'react'
+import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
 
 const GpgpuMaterial = shaderMaterial(
   {
@@ -26,11 +29,43 @@ declare module '@react-three/fiber' {
 extend({ GpgpuMaterial })
 
 const Experience = () => {
+  const pointRef = useRef<THREE.Points>(null)
+  const { gl } = useThree()
+
+  const { gpuCompute, particlesVariable } = useMemo(() => {
+    const count = pointRef.current?.geometry.attributes.position.count ?? 0
+    for (let i = 0; i < count; i++) {}
+
+    const size = Math.ceil(Math.sqrt(count))
+
+    const gpuCompute = new GPUComputationRenderer(size, size, gl)
+    // It’s a DataTexture which is similar to other Three.js textures but the pixels data is set up as an array which we can access in
+    const baseParticleTexture = gpuCompute.createTexture()
+
+    // Particles variables
+    const particlesVariable = gpuCompute.addVariable('uParticles', gpgpuParticlesShader, baseParticleTexture)
+    // we want the particles to persist in time, meaning that their coordinates will be saved and re-used in the next frame, The “variable” needs to be re-injected into itself
+    gpuCompute.setVariableDependencies(particlesVariable, [particlesVariable])
+    gpuCompute.init()
+
+    return { gpuCompute, particlesVariable }
+  }, [pointRef.current])
+
+  useFrame((_, delta) => {
+    gpuCompute?.compute()
+  })
+
   return (
-    <points>
-      <sphereGeometry args={[3]} />
-      <gpgpuMaterial />
-    </points>
+    <>
+      <mesh position-x={3}>
+        <planeGeometry args={[3, 3]} />
+        <meshBasicMaterial map={gpuCompute?.getCurrentRenderTarget(particlesVariable).texture} />
+      </mesh>
+      <points ref={pointRef}>
+        <sphereGeometry args={[3]} />
+        <gpgpuMaterial />
+      </points>
+    </>
   )
 }
 
