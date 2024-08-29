@@ -34,15 +34,24 @@ const Experience = () => {
 
   const { gpuCompute, particlesVariable } = useMemo(() => {
     const count = pointRef.current?.geometry.attributes.position.count ?? 0
-    for (let i = 0; i < count; i++) {}
 
     const size = Math.ceil(Math.sqrt(count))
 
     const gpuCompute = new GPUComputationRenderer(size, size, gl)
     // It’s a DataTexture which is similar to other Three.js textures but the pixels data is set up as an array which we can access in
     const baseParticleTexture = gpuCompute.createTexture()
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3
+      const i4 = i * 4
 
-    // Particles variables
+      //
+      baseParticleTexture.image.data[i4 + 0] = pointRef.current?.geometry.attributes.position.array[i3 + 0] as number
+      baseParticleTexture.image.data[i4 + 1] = pointRef.current?.geometry.attributes.position.array[i3 + 1] as number
+      baseParticleTexture.image.data[i4 + 2] = pointRef.current?.geometry.attributes.position.array[i3 + 2] as number
+      baseParticleTexture.image.data[i4 + 3] = 0
+    }
+
+    // Particles variables, GPU interact with those variables
     const particlesVariable = gpuCompute.addVariable('uParticles', gpgpuParticlesShader, baseParticleTexture)
     // we want the particles to persist in time, meaning that their coordinates will be saved and re-used in the next frame, The “variable” needs to be re-injected into itself
     gpuCompute.setVariableDependencies(particlesVariable, [particlesVariable])
