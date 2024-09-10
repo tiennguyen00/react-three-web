@@ -1,6 +1,7 @@
 uniform vec2 uResolution;
 uniform float uSize;
 uniform sampler2D uParticlesTexture;
+uniform vec3 uPointer;
 attribute vec2 aParticlesUv;
 attribute vec3 aColor;
 attribute float aSize;
@@ -23,6 +24,11 @@ void main()
     float size = min(sizeIn, sizeOut);
     gl_PointSize = uSize * uResolution.y * aSize * size;
     gl_PointSize *= (1.0 / - viewPosition.z);
+
+    float distanceVal = distance(uPointer, particle.xyz);
+    if(distanceVal < 0.5) 
+        gl_PointSize *= 0.1;
+    
 
     // Varyings
     vColor = aColor;

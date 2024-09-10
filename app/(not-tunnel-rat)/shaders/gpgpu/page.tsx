@@ -5,7 +5,7 @@ import vertex from '@/components/shared/gpgpu/gpgpu.vert'
 import fragment from '@/components/shared/gpgpu/gpgpu.frag'
 
 import * as THREE from 'three'
-import { useControls } from 'leva'
+import { Perf } from 'r3f-perf'
 import { FleetModel } from '@/components/models/Fleet'
 
 const GpgpuMaterial = shaderMaterial(
@@ -49,6 +49,7 @@ const page = () => {
       }}
     >
       <color args={['#29191f']} attach='background' />
+      <Perf position='top-left' />
       <axesHelper />
       <OrbitControls enableDamping />
       <Experience />

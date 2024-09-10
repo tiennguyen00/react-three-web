@@ -97,6 +97,7 @@ uniform sampler2D uBase;
 uniform float uDeltaTime;
 uniform float uFlowFieldInfluence;
 uniform float uFlowFieldStrength;
+uniform vec3 uMouse;
 
 void main() 
 {
@@ -109,6 +110,10 @@ void main()
     particle.xyz = base.xyz;
   } else {
     float time = uTime * 0.2;
+
+    // Calculate the distance between the cursor and the particle
+    // float distanceVal = distance(uMouse, particle.xyz);
+
     // Strength, the value of simplexNoise4d from -1.0 -> 1.0
     float strength = simplexNoise4d(vec4(base.xyz, time + 1.0));
     float influence = (uFlowFieldInfluence - 0.5) * (-2.0);
@@ -122,7 +127,8 @@ void main()
     );
     //flowField is the direction.
     flowField = normalize(flowField);
-    particle.xyz += flowField * uDeltaTime * uFlowFieldStrength * strength;
+    // particle.xyz += flowField * uDeltaTime * uFlowFieldStrength * strength;
+
     // Decay
     particle.a += uDeltaTime * 0.3;
   }
