@@ -34,11 +34,15 @@ extend({ GpgpuMaterial })
 
 export function FleetModel(props: GroupProps) {
   const { gl, pointer, camera } = useThree()
+  const raycaster = new THREE.Raycaster()
+  // raycaster.params.Points.threshold = 0.1
   const { scene } = useGLTF('/models/fleet.glb')
   const { nodes } = useGraph(scene)
   const { geometry } = nodes.boat as any
   const size = Math.ceil(Math.sqrt(geometry.attributes.position.count))
   const gpgpuMaterialRef = useRef<THREE.ShaderMaterial>(null)
+
+  const pointsRef = useRef<THREE.Points>(null)
 
   const { flowFieldInfluence, flowFieldStrength } = useControls('Points', {
     flowFieldInfluence: {
@@ -120,6 +124,18 @@ export function FleetModel(props: GroupProps) {
     const elapsedTime = clock.getElapsedTime()
     particlesVariable.material.uniforms.uTime.value = elapsedTime
     particlesVariable.material.uniforms.uDeltaTime.value = delta
+
+    if (pointsRef.current) {
+      raycaster.setFromCamera(pointer, camera)
+      const intersects = raycaster.intersectObject(pointsRef.current)
+
+      if (intersects.length > 0) {
+        console.log('intersects: ', intersects)
+
+        const { point } = intersects[0]
+        particlesVariable.material.uniforms.uMouse.value = new THREE.Vector3(point.x, point.y, 0)
+      }
+    }
   })
 
   useEffect(() => {
@@ -127,17 +143,9 @@ export function FleetModel(props: GroupProps) {
     particlesVariable.material.uniforms.uFlowFieldStrength.value = flowFieldStrength
   }, [flowFieldInfluence, flowFieldStrength])
 
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (gpgpuMaterialRef.current) {
-      const { uniforms } = gpgpuMaterialRef.current as any
-      uniforms.uPointer.value = e.point
-    }
-  }
-
   return (
     <group {...props}>
-      <mesh geometry={geometry} visible={false} onPointerMove={handlePointerMove} />
-      <points>
+      <points ref={pointsRef}>
         <bufferGeometry drawRange={{ start: 0, count: geometry.attributes.position.count }}>
           <bufferAttribute attach='attributes-aParticlesUv' array={particleUvArray} itemSize={2} />
           <bufferAttribute attach='attributes-aColor' array={geometry.attributes.color.array} itemSize={4} />
