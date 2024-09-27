@@ -33,16 +33,13 @@ declare module '@react-three/fiber' {
 extend({ GpgpuMaterial })
 
 export function FleetModel(props: GroupProps) {
-  const { gl, pointer, camera } = useThree()
-  const raycaster = new THREE.Raycaster()
-  // raycaster.params.Points.threshold = 0.1
+  const { gl, camera, raycaster } = useThree()
+
   const { scene } = useGLTF('/models/fleet.glb')
   const { nodes } = useGraph(scene)
   const { geometry } = nodes.boat as any
   const size = Math.ceil(Math.sqrt(geometry.attributes.position.count))
   const gpgpuMaterialRef = useRef<THREE.ShaderMaterial>(null)
-
-  const pointsRef = useRef<THREE.Points>(null)
 
   const { flowFieldInfluence, flowFieldStrength } = useControls('Points', {
     flowFieldInfluence: {
@@ -113,7 +110,7 @@ export function FleetModel(props: GroupProps) {
     return { gpuCompute, baseParticleTexture, particlesVariable, particleUvArray, sizesArray }
   }, [])
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock, pointer }, delta) => {
     gpuCompute.compute()
 
     if (gpgpuMaterialRef.current) {
@@ -125,16 +122,12 @@ export function FleetModel(props: GroupProps) {
     particlesVariable.material.uniforms.uTime.value = elapsedTime
     particlesVariable.material.uniforms.uDeltaTime.value = delta
 
-    if (pointsRef.current) {
-      raycaster.setFromCamera(pointer, camera)
-      const intersects = raycaster.intersectObject(pointsRef.current)
+    raycaster.setFromCamera(pointer, camera)
+    const intersects = raycaster.intersectObjects(scene.children)
 
-      if (intersects.length > 0) {
-        console.log('intersects: ', intersects)
-
-        const { point } = intersects[0]
-        particlesVariable.material.uniforms.uMouse.value = new THREE.Vector3(point.x, point.y, 0)
-      }
+    if (intersects.length > 0) {
+      const { point } = intersects[0]
+      particlesVariable.material.uniforms.uMouse.value = new THREE.Vector3(point.x, point.y, point.z)
     }
   })
 
@@ -145,7 +138,7 @@ export function FleetModel(props: GroupProps) {
 
   return (
     <group {...props}>
-      <points ref={pointsRef}>
+      <points>
         <bufferGeometry drawRange={{ start: 0, count: geometry.attributes.position.count }}>
           <bufferAttribute attach='attributes-aParticlesUv' array={particleUvArray} itemSize={2} />
           <bufferAttribute attach='attributes-aColor' array={geometry.attributes.color.array} itemSize={4} />
