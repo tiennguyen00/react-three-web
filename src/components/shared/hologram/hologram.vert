@@ -1,4 +1,5 @@
 varying vec3 vModelPosition;
+varying vec3 vNormal;
 /**
 Explain the basic props in veer
 - position: is the local space (relative to the origin's object)
@@ -12,5 +13,9 @@ void main()
     vec4 modelPosition = modelMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * viewMatrix * modelPosition;
 
+    vec4 modelNormal = modelMatrix * vec4(normal, 0.);
+
     vModelPosition = modelPosition.xyz;
+    // Each vertex in a 3D model has an associated normal vector, which points perpendicularly from the surface.
+    vNormal = modelNormal.xyz;
 }
