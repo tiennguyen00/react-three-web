@@ -26,6 +26,9 @@ const Experience = () => {
   const { nodes } = useGraph(scene)
   const holoMaterial = new HoloMaterial()
   holoMaterial.transparent = true
+  holoMaterial.side = THREE.DoubleSide
+  holoMaterial.depthWrite = false
+  holoMaterial.blending = THREE.AdditiveBlending
 
   const refGroup = useRef<THREE.Group>(null)
 
@@ -75,13 +78,13 @@ const page = () => {
         alpha: false,
       }}
       camera={{
-        position: [8, 10, 12],
+        position: [3, 3, 3],
       }}
     >
       <color args={['black']} attach='background' />
       <axesHelper />
       <ambientLight intensity={1} color='white' />
-      <OrbitControls target={[0, 3, 0]} enableDamping />
+      <OrbitControls target={[0, 0, 0]} enableDamping />
       <Experience />
     </Canvas>
   )
