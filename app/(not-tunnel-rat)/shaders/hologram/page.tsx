@@ -5,10 +5,12 @@ import * as THREE from 'three'
 import vertex from '@/components/shared/hologram/hologram.vert'
 import fragment from '@/components/shared/hologram/hologram.frag'
 import { useEffect, useRef } from 'react'
+import { useControls } from 'leva'
 
 const HoloMaterial = shaderMaterial(
   {
     uTime: 0,
+    uColor: new THREE.Color('#70c1ff'),
   },
   vertex,
   fragment,
@@ -32,24 +34,29 @@ const Experience = () => {
 
   const refGroup = useRef<THREE.Group>(null)
 
+  const controls = useControls({
+    color: '#70c1ff',
+  })
+
   useEffect(() => {
+    holoMaterial.uniforms.uColor.value = new THREE.Color(controls.color)
     Object.values(nodes).forEach((node) => {
       if ((node as THREE.Mesh).isMesh) {
         ;(node as THREE.Mesh).material = holoMaterial
       }
     })
-  }, [])
+  }, [controls.color])
 
   useFrame(({ clock }) => {
     const elapsedTime = clock.getElapsedTime()
     holoMaterial.uniforms.uTime.value = elapsedTime
 
     if (refGroup.current) {
-      refGroup.current.children.forEach((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.rotation.x = elapsedTime * 0.5
-        }
-      })
+      // refGroup.current.children.forEach((child) => {
+      //   if (child instanceof THREE.Mesh) {
+      //     child.rotation.x = elapsedTime * 0.5
+      //   }
+      // })
     }
   })
 
@@ -81,7 +88,7 @@ const page = () => {
         position: [3, 3, 3],
       }}
     >
-      <color args={['black']} attach='background' />
+      <color args={['#1d1f2a']} attach='background' />
       <axesHelper />
       <ambientLight intensity={1} color='white' />
       <OrbitControls target={[0, 0, 0]} enableDamping />
