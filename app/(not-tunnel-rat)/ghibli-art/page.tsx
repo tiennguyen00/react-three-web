@@ -3,23 +3,26 @@ import Control from '@/components/ghibli-art/Control'
 import Experience from '@/components/ghibli-art/Experience'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
+import { Perf } from 'r3f-perf'
 
 const Page = () => {
   return (
     <Canvas
       id='ghibli-art-canvas'
-      className='fixed left-0 top-0 flex outline-none'
+      className='fixed top-0 left-0 flex outline-none'
       camera={{
-        position: new THREE.Vector3(-7, 3, 7),
+        position: [14.4666, 2.0365, 5.556165],
       }}
       gl={{
-        // powerPreference: 'high-performance',
+        powerPreference: 'high-performance',
         antialias: true,
         alpha: true,
       }}
+      shadows
     >
       <color attach='background' args={['#4ab8ff']} />
-      <axesHelper />
+      <Perf position='top-left' />
+      <axesHelper args={[25]} />
       <Control />
       <Experience />
     </Canvas>
