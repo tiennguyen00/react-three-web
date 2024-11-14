@@ -13,7 +13,7 @@ export default function Trees(props: any) {
     () => ({
       colorMap: new THREE.Uniform(props?.colors),
       brightnessThresholds: new THREE.Uniform([0.6, 0.35, 0.001]),
-      lightPosition: new THREE.Uniform(new THREE.Vector3(15, 15, 15)),
+      lightPosition: new THREE.Uniform(new THREE.Vector3(-15, 15, -15)),
     }),
     [props?.colors],
   )

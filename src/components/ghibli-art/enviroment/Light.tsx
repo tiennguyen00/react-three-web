@@ -1,10 +1,17 @@
-import React from 'react'
+import { useHelper } from '@react-three/drei'
+import { useRef } from 'react'
+import { DirectionalLight, DirectionalLightHelper } from 'three'
 
 const Light = () => {
+  const dirRef = useRef<DirectionalLight>(null)
+
+  useHelper(dirRef, DirectionalLightHelper, 5, 'white')
+
   return (
     <>
       <ambientLight intensity={0.8} />
       <directionalLight
+        ref={dirRef}
         color='white'
         position={[15, 15, 15]}
         castShadow

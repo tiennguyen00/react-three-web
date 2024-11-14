@@ -43,7 +43,7 @@ export const GhibliShader = {
     void main() {
       vec3 worldPosition = ( modelMatrix * vec4( vPosition, 1.0 )).xyz;
       vec3 worldNormal = normalize( vec3( modelMatrix * vec4( vNormal, 0.0 ) ) );
-      vec3 lightVector = normalize( lightPosition - worldPosition );
+      vec3 lightVector = normalize( worldPosition - lightPosition  );
       float brightness = dot( worldNormal, lightVector );
 
       vec4 final;

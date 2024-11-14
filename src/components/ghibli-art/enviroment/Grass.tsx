@@ -4,11 +4,12 @@ import * as THREE from 'three'
 import vertex from '../shader/grass.vert'
 import fragment from '../shader/grass.frag'
 import { useFrame } from '@react-three/fiber'
+import { folder, useControls } from 'leva'
 
-const PLANE_SIZE = 30
-const BLADE_COUNT = 100000
-const BLADE_WIDTH = 0.1
-const BLADE_HEIGHT = 0.8
+const PLANE_SIZE = 50
+const BLADE_COUNT = 500000
+const BLADE_WIDTH = 0.2
+const BLADE_HEIGHT = 0.2
 const BLADE_HEIGHT_VARIATION = 0.6
 
 function convertRange(val: number, oldMin: number, oldMax: number, newMin: number, newMax: number) {
@@ -77,7 +78,7 @@ function generateBlade(center: THREE.Vector3, vArrOffset: number, uv: number[]) 
 
 const Grass = () => {
   const grassRef = useRef<THREE.Mesh>(null)
-  const [grassTexture, cloudTexture] = useTexture(['/textures/grass.jpg', '/textures/cloud.jpg'])
+  const [grassTexture, cloudTexture] = useTexture(['/textures/test_1.jpg', '/textures/cloud.jpg'])
   cloudTexture.wrapS = cloudTexture.wrapT = THREE.RepeatWrapping
 
   // BufferGeometry
@@ -133,6 +134,35 @@ const Grass = () => {
     }
   })
 
+  // Uniform modifiers
+  const uniforms = useMemo(
+    () => ({
+      uTime: new THREE.Uniform(0),
+      uTextures: new THREE.Uniform([grassTexture, cloudTexture]),
+      uBrightness: new THREE.Uniform(0.2),
+      uContrast: new THREE.Uniform(1.0),
+    }),
+    [cloudTexture, grassTexture],
+  )
+
+  const { brightness, contrast } = useControls({
+    grass: folder({
+      brightness: {
+        value: 0.1,
+        step: 0.1,
+      },
+      contrast: {
+        value: 1.0,
+        step: 0.1,
+      },
+    }),
+  })
+
+  useEffect(() => {
+    uniforms.uBrightness.value = brightness
+    uniforms.uContrast.value = contrast
+  }, [brightness, contrast])
+
   return (
     <>
       <mesh ref={grassRef}>
@@ -142,10 +172,7 @@ const Grass = () => {
           <bufferAttribute attach='attributes-color' array={colors} itemSize={3} />
         </bufferGeometry>
         <shaderMaterial
-          uniforms={{
-            uTextures: new THREE.Uniform([grassTexture, cloudTexture]),
-            uTime: new THREE.Uniform(0),
-          }}
+          uniforms={uniforms}
           vertexShader={vertex}
           fragmentShader={fragment}
           side={THREE.DoubleSide}
