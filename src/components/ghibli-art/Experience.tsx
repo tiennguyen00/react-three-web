@@ -1,3 +1,4 @@
+import Brush from './enviroment/Brush'
 import Grass from './enviroment/Grass'
 import Light from './enviroment/Light'
 import Trees from './enviroment/Trees'
@@ -8,6 +9,7 @@ const Experience = () => {
     <>
       <Light />
       <Grass />
+      <Brush />
       <Trees
         position={[0, 2, 0]}
         colors={[
