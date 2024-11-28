@@ -2,13 +2,14 @@
 import Control from '@/components/ghibli-art/Control'
 import Experience from '@/components/ghibli-art/Experience'
 import { Canvas } from '@react-three/fiber'
+import { Physics } from '@react-three/rapier'
 import { Perf } from 'r3f-perf'
 
 const Page = () => {
   return (
     <Canvas
       id='ghibli-art-canvas'
-      className='fixed left-0 top-0 flex outline-none'
+      className='fixed top-0 left-0 flex outline-none'
       camera={{
         position: [14.4666, 2.0365, 5.556165],
       }}
@@ -23,7 +24,9 @@ const Page = () => {
       <Perf position='top-left' />
       <axesHelper args={[25]} />
       <Control />
-      <Experience />
+      <Physics debug>
+        <Experience />
+      </Physics>
     </Canvas>
   )
 }

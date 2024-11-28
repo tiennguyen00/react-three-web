@@ -1,16 +1,15 @@
-import { useTexture } from '@react-three/drei'
-import { useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
+import { Instance, Instances, useTexture } from '@react-three/drei'
+import { useMemo } from 'react'
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 const PLANE_COUNT = 200
+const BRUSH_COUNT = 50
 const Brush = () => {
-  const { scene } = useThree()
   const alphaMap = useTexture('/img/alphaMap/brush.png')
 
-  const planes: THREE.PlaneGeometry[] = []
-  useEffect(() => {
+  const { geometries, planes } = useMemo(() => {
+    const planes: THREE.PlaneGeometry[] = []
     for (let i = 0; i < PLANE_COUNT; i++) {
       const plane = new THREE.PlaneGeometry(1, 1)
       planes.push(plane)
@@ -48,18 +47,29 @@ const Brush = () => {
     }
 
     const geometries = mergeGeometries(planes)
-    const materials = new THREE.MeshStandardMaterial({
-      color: '#427062',
-      alphaMap,
-    })
-    materials.transparent = true
-    materials.depthWrite = false
-    materials.depthTest = false
-    const mesh = new THREE.Mesh(geometries, materials)
-    mesh.position.set(0, 6, 0)
-    scene.add(mesh)
+
+    return {
+      geometries,
+      planes,
+    }
   }, [])
-  return <></>
+  return (
+    <Instances
+      material={
+        new THREE.MeshPhongMaterial({
+          color: '#427062',
+          alphaMap,
+          transparent: true,
+          depthWrite: false,
+        })
+      }
+      geometry={geometries}
+    >
+      {Array.from(Array(BRUSH_COUNT)).map((i, index) => (
+        <Instance key={index} position={[(Math.random() * 2 - 1) * 10 - 1, 2, (Math.random() * 2 - 1) * 10]} />
+      ))}
+    </Instances>
+  )
 }
 
 export default Brush
