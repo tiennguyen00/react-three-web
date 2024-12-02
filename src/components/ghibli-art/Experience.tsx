@@ -13,7 +13,7 @@ const Experience = () => {
       {/* <Grass /> */}
       <Terrain />
       <Character />
-      {/* <Brush /> */}
+      <Brush />
       {/* <Trees
         position={[0, 2, 0]}
         colors={[

@@ -1,37 +1,93 @@
 import { RigidBody } from '@react-three/rapier'
 import { Base, Geometry, Subtraction } from '@react-three/csg'
-import { useTexture } from '@react-three/drei'
 import CustomShaderMaterial from 'three-custom-shader-material'
+import CustomShaderMaterialVanilla from 'three-custom-shader-material/vanilla'
 import * as THREE from 'three'
 import vertex from '../../shaders/terrain.vert'
 import fragment from '../../shaders/terrain.frag'
+import { useEffect, useMemo, useRef } from 'react'
+import { useControls } from 'leva'
+
+const PLANE_SIZE = 50
 
 const Terrain = () => {
-  const heightMap = useTexture('/img/heightMap/ghibli.png')
+  const planeRef = useRef<THREE.Mesh>(null)
+
+  const uniforms = useMemo(
+    () => ({
+      uPositionFrequency: new THREE.Uniform(0.2),
+      uStrength: new THREE.Uniform(2.0),
+      uWarpFrequency: new THREE.Uniform(5),
+      uWarpStrength: new THREE.Uniform(0.5),
+    }),
+    [],
+  )
+
+  const { positionFrequency, strengh, warpFrequency, warpStrength } = useControls('Terrain', {
+    positionFrequency: {
+      value: 0.09,
+    },
+    strengh: {
+      value: 2.0,
+    },
+    warpFrequency: {
+      value: 3.0,
+    },
+    warpStrength: {
+      value: 0.0,
+    },
+  })
+
+  useEffect(() => {
+    if (planeRef.current) {
+      planeRef.current.geometry.rotateX(-Math.PI * 0.5)
+    }
+  }, [])
+
+  useEffect(() => {
+    const material = planeRef.current?.material as THREE.ShaderMaterial
+    material.uniforms.uPositionFrequency.value = positionFrequency
+    material.uniforms.uStrength.value = strengh
+    material.uniforms.uWarpFrequency.value = warpFrequency
+    material.uniforms.uWarpStrength.value = warpStrength
+  }, [positionFrequency, strengh, warpFrequency, warpStrength])
 
   return (
     <RigidBody type='fixed' colliders='trimesh' ccd>
       <group>
         <mesh castShadow>
           <Geometry>
-            <Base scale={[11, 2, 11]}>
+            <Base scale={[PLANE_SIZE + 1, 2, PLANE_SIZE + 1]}>
               <boxGeometry />
             </Base>
-            <Subtraction scale={[10, 2.1, 10]}>
+            <Subtraction scale={[PLANE_SIZE, 2.1, PLANE_SIZE]}>
               <boxGeometry />
             </Subtraction>
           </Geometry>
           <meshStandardMaterial color='#ffffff' metalness={0} roughness={0.3} />
         </mesh>
-        <mesh rotation-x={-Math.PI * 0.5} receiveShadow castShadow>
-          <planeGeometry args={[10, 10, 1, 1]} />
+        <mesh
+          ref={planeRef}
+          receiveShadow
+          castShadow
+          customDepthMaterial={
+            new CustomShaderMaterialVanilla<typeof THREE.MeshDepthMaterial>({
+              vertexShader: vertex,
+              baseMaterial: THREE.MeshDepthMaterial,
+              uniforms: uniforms,
+              depthPacking: THREE.RGBADepthPacking,
+            })
+          }
+        >
+          <planeGeometry args={[PLANE_SIZE, PLANE_SIZE, PLANE_SIZE * 10, PLANE_SIZE * 10]} />
           <CustomShaderMaterial<typeof THREE.MeshStandardMaterial>
             baseMaterial={THREE.MeshStandardMaterial}
             metalness={0}
             roughness={0.5}
+            color='#85d534'
             vertexShader={vertex}
             fragmentShader={fragment}
-            uniforms={{}}
+            uniforms={uniforms}
           />
         </mesh>
       </group>

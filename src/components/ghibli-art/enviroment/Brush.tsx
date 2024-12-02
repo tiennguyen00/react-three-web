@@ -1,5 +1,5 @@
 import { Instance, Instances, useTexture } from '@react-three/drei'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
@@ -7,6 +7,8 @@ const PLANE_COUNT = 200
 const BRUSH_COUNT = 50
 const Brush = () => {
   const alphaMap = useTexture('/img/alphaMap/brush.png')
+  const matcap = useTexture('/img/matcaps/brush.png')
+  matcap.colorSpace = THREE.SRGBColorSpace
 
   const { geometries, planes } = useMemo(() => {
     const planes: THREE.PlaneGeometry[] = []
@@ -53,17 +55,36 @@ const Brush = () => {
       planes,
     }
   }, [])
+
+  const instanceMeshRef = useRef<THREE.InstancedMesh>(null)
+  // useEffect(() => {
+  //   if (instanceMeshRef.current) {
+  //     instanceMeshRef.current.material.onBeforeCompile = (shader) => {
+  //       shader.fragmentShader = shader.fragmentShader.replace(
+  //         `vec3 outgoingLight = diffuseColor.rgb * matcapColor.rgb;`,
+  //         `
+  //           vec3 outgoingLight = diffuseColor.rgb * matcapColor.rgb;
+  //         `,
+  //       )
+  //     }
+  //   }
+  // }, [instanceMeshRef])
+
   return (
     <Instances
       material={
-        new THREE.MeshPhongMaterial({
-          color: '#427062',
+        new THREE.MeshMatcapMaterial({
+          matcap,
           alphaMap,
           transparent: true,
-          depthWrite: false,
+          depthWrite: true,
+          blending: THREE.NormalBlending,
+          alphaTest: 0.5,
+          color: new THREE.Color().setHex(0xffffff),
         })
       }
       geometry={geometries}
+      ref={instanceMeshRef}
     >
       {Array.from(Array(BRUSH_COUNT)).map((i, index) => (
         <Instance key={index} position={[(Math.random() * 2 - 1) * 10 - 1, 2, (Math.random() * 2 - 1) * 10]} />

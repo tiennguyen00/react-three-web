@@ -17,6 +17,7 @@ const Page = () => {
         powerPreference: 'high-performance',
         antialias: true,
         alpha: true,
+        toneMappingExposure: 1.0,
       }}
       shadows
     >
@@ -24,7 +25,7 @@ const Page = () => {
       <Perf position='top-left' />
       <axesHelper args={[25]} />
       <Control />
-      <Physics debug>
+      <Physics>
         <Experience />
       </Physics>
     </Canvas>
