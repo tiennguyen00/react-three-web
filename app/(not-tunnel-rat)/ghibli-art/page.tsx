@@ -9,7 +9,7 @@ const Page = () => {
   return (
     <Canvas
       id='ghibli-art-canvas'
-      className='fixed top-0 left-0 flex outline-none'
+      className='fixed left-0 top-0 flex outline-none'
       camera={{
         position: [14.4666, 2.0365, 5.556165],
       }}
@@ -23,7 +23,7 @@ const Page = () => {
     >
       <color attach='background' args={['#4ab8ff']} />
       <Perf position='top-left' />
-      <axesHelper args={[25]} />
+      <axesHelper args={[25]} position={[0, 1, 0]} />
       <Control />
       <Physics>
         <Experience />
