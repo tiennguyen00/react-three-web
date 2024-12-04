@@ -11,18 +11,9 @@ const Experience = () => {
     <>
       <Light />
       <Grass />
+      {/* <Brush /> */}
       <Terrain />
       <Character />
-      <Brush />
-      {/* <Trees
-        position={[0, 2, 0]}
-        colors={[
-          new THREE.Color('#427062').convertLinearToSRGB(),
-          new THREE.Color('#33594e').convertLinearToSRGB(),
-          new THREE.Color('#234549').convertLinearToSRGB(),
-          new THREE.Color('#1e363f').convertLinearToSRGB(),
-        ]}
-      /> */}
     </>
   )
 }

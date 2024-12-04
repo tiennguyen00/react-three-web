@@ -5,6 +5,7 @@ import vertex from '../shader/grass.vert'
 import fragment from '../shader/grass.frag'
 import { useFrame } from '@react-three/fiber'
 import { folder, useControls } from 'leva'
+import { useTerrainGeometry } from '@/store'
 
 const PLANE_SIZE = 50
 const BLADE_COUNT = 500000
@@ -76,7 +77,17 @@ function generateBlade(center: THREE.Vector3, vArrOffset: number, uv: number[]) 
   return { verts, indices }
 }
 
+function getHeightAt(x, z, terrainPositions, terrainWidth, terrainDepth) {
+  const gridX = convertRange(x, -terrainWidth / 2, terrainWidth / 2, 0, 1)
+  const gridZ = convertRange(z, -terrainDepth / 2, terrainDepth / 2, 0, 1)
+
+  // Approximation: Use nearest vertex for simplicity
+  const nearestVertexIndex = Math.floor(gridZ * terrainWidth + gridX)
+  return terrainPositions[nearestVertexIndex * 3 + 1] // Y position from terrain vertices
+}
+
 const Grass = () => {
+  const { data: dataTerrain } = useTerrainGeometry()
   const grassRef = useRef<THREE.Mesh>(null)
   const [grassTexture, cloudTexture] = useTexture(['/textures/test_1.jpg', '/textures/cloud.jpg'])
   cloudTexture.wrapS = cloudTexture.wrapT = THREE.RepeatWrapping
@@ -88,18 +99,27 @@ const Grass = () => {
     const indices: number[] = []
     const colors: number[] = []
 
+    if (!dataTerrain || !dataTerrain.attributes) {
+      console.error('Terrain data not available for grass placement.')
+      return { positions: [], uv: [], colors: [], indices: [] }
+    }
+
+    const terrainPositions = dataTerrain.attributes.position.array // Get the vertex positions of the terrain
+    const terrainWidth = PLANE_SIZE // Match your terrain size
+    const terrainDepth = PLANE_SIZE
+
     for (let i = 0; i < BLADE_COUNT; i++) {
       const VERTEX_COUNT = 5
       const surfaceMin = (PLANE_SIZE / 2) * -1
       const surfaceMax = PLANE_SIZE / 2
-      const radius = PLANE_SIZE / 2
 
-      const r = radius * Math.sqrt(Math.random())
+      const r = (Math.random() * terrainWidth) / 2
       const theta = Math.random() * 2 * Math.PI
       const x = r * Math.cos(theta)
-      const y = r * Math.sin(theta)
+      const z = r * Math.sin(theta)
 
-      const pos = new THREE.Vector3(x, 0, y)
+      const y = getHeightAt(x, z, terrainPositions, terrainWidth, terrainDepth)
+      const pos = new THREE.Vector3(x, y, z)
 
       const uv = [convertRange(pos.x, surfaceMin, surfaceMax, 0, 1), convertRange(pos.z, surfaceMin, surfaceMax, 0, 1)]
 

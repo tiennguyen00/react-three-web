@@ -4,6 +4,8 @@ varying vec2 cloudUV;
 varying vec3 vColor;
 uniform float uTime;
 
+attribute vec3 aTerrain;
+
 void main() {
   vUv = uv;
   cloudUV = uv;
@@ -19,8 +21,8 @@ void main() {
   }else if (color.x > 0.0f) {
     cpos.x += sin((uTime * 2.) + (uv.x * waveSize)) * centerDistance;
   }
+  cpos.y += aTerrain.y;
 
-  float diff = position.x - cpos.x;
   cloudUV.x += uTime / 20.;
   cloudUV.y += uTime / 10.;
 

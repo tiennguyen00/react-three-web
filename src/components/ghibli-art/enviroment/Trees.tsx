@@ -28,3 +28,13 @@ export default function Trees(props: any) {
 }
 
 useGLTF.preload('/models/ghibli-art/trees.glb')
+
+/* <Trees
+        position={[0, 2, 0]}
+        colors={[
+          new THREE.Color('#427062').convertLinearToSRGB(),
+          new THREE.Color('#33594e').convertLinearToSRGB(),
+          new THREE.Color('#234549').convertLinearToSRGB(),
+          new THREE.Color('#1e363f').convertLinearToSRGB(),
+        ]}
+      /> */

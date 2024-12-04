@@ -25,7 +25,7 @@ const Page = () => {
       <Perf position='top-left' />
       <axesHelper args={[25]} position={[0, 1, 0]} />
       <Control />
-      <Physics>
+      <Physics debug>
         <Experience />
       </Physics>
     </Canvas>
