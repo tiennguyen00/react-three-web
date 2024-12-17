@@ -11,16 +11,16 @@ const Brush = () => {
   const matcap = useTexture('/img/matcaps/brush.png')
   matcap.colorSpace = THREE.SRGBColorSpace
 
-  const { geometries, planes } = useMemo(() => {
+  const { geometries } = useMemo(() => {
     const planes: THREE.PlaneGeometry[] = []
     for (let i = 0; i < PLANE_COUNT; i++) {
       const plane = new THREE.PlaneGeometry(1, 1)
       planes.push(plane)
 
       const spherial = new THREE.Spherical(
-        1 - Math.pow(Math.random(), 3),
+        (1 - Math.pow(Math.random(), 3)) * 2,
         (Math.PI / 2) * Math.random(),
-        2 * Math.PI * Math.random(),
+        Math.PI * Math.random() * 2,
       )
 
       const position = new THREE.Vector3().setFromSpherical(spherial)
@@ -53,7 +53,6 @@ const Brush = () => {
 
     return {
       geometries,
-      planes,
     }
   }, [])
 
@@ -94,12 +93,17 @@ const Brush = () => {
           vPositionLocal = position;
 
           // Compute Perlin noise-based wind effect
-          vec2 perlinUv = vPositionWorld.xz * 0.3 + vec2(sin(uTime) * 0.2);
-          vec4 perlinSample = texture2D(uNoise, perlinUv);
-          float perlinColor = (perlinSample.r - 0.5) * vPositionLocal.y;
+          float interpolatedTime = sin(uTime) * 0.6;
+          vec2 perlinUv = vPositionWorld.xz * 0.2 + interpolatedTime;
+          vec3 perlinColor = texture2D(uNoise, perlinUv).rgb - vec3(0.5);
 
+          float windEffect = 0.0;
+          if (vPositionWorld.y >= -0.5) {
+              windEffect = perlinColor.r * vPositionWorld.y;
+          }
+          
           // Final position
-          transformed.xz += vec2(perlinColor);
+          transformed.xz += vec2(windEffect);
         `,
         )
         shader.uniforms.uNoise = uniforms.uNoise
