@@ -2,8 +2,8 @@ import { create } from 'zustand'
 import * as THREE from 'three'
 
 interface TerrainGeometryProps {
-  data: THREE.BufferGeometry | undefined
-  setData: (v: THREE.BufferGeometry) => void
+  data: any | undefined
+  setData: (v: any) => void
 }
 
 export const useTerrainGeometry = create<TerrainGeometryProps>((set) => ({

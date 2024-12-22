@@ -7,7 +7,7 @@ import { useFrame } from '@react-three/fiber'
 import { folder, useControls } from 'leva'
 import { useTerrainGeometry } from '@/store'
 
-const PLANE_SIZE = 50
+export const PLANE_SIZE = 20
 const BLADE_COUNT = 500000
 const BLADE_WIDTH = 0.2
 const BLADE_HEIGHT = 0.2
@@ -77,13 +77,29 @@ function generateBlade(center: THREE.Vector3, vArrOffset: number, uv: number[]) 
   return { verts, indices }
 }
 
-function getHeightAt(x, z, terrainPositions, terrainWidth, terrainDepth) {
-  const gridX = convertRange(x, -terrainWidth / 2, terrainWidth / 2, 0, 1)
-  const gridZ = convertRange(z, -terrainDepth / 2, terrainDepth / 2, 0, 1)
+const getHeightAt = (x, z, heightMap) => {
+  const texture = heightMap.image
+  const canvas = document.createElement('canvas')
+  canvas.width = texture.width
+  canvas.height = texture.height
+  const context = canvas.getContext('2d')
+  context.drawImage(texture, 0, 0)
+  const imageData = context.getImageData(0, 0, texture.width, texture.height).data
 
-  // Approximation: Use nearest vertex for simplicity
-  const nearestVertexIndex = Math.floor(gridZ * terrainWidth + gridX)
-  return terrainPositions[nearestVertexIndex * 3 + 1] // Y position from terrain vertices
+  const uvX = (x + PLANE_SIZE / 2) / PLANE_SIZE // Map x from [-size/2, size/2] to [0, 1]
+  const uvY = (z + PLANE_SIZE / 2) / PLANE_SIZE // Map z from [-size/2, size/2] to [0, 1]
+
+  const pixelX = Math.floor(uvX * canvas.width)
+  const pixelY = Math.floor(uvY * canvas.height)
+  const pixelIndex = (pixelY * canvas.width + pixelX) * 4 // RGBA channels
+
+  const normalizedHeight = imageData[pixelIndex] / 255 // Normalize to [0, 1]
+
+  // Apply displacement scale
+  const displacementScale = 4
+  const height = normalizedHeight * displacementScale
+
+  return height
 }
 
 const Grass = () => {
@@ -99,26 +115,21 @@ const Grass = () => {
     const indices: number[] = []
     const colors: number[] = []
 
-    if (!dataTerrain || !dataTerrain.attributes) {
-      console.error('Terrain data not available for grass placement.')
-      return { positions: [], uv: [], colors: [], indices: [] }
-    }
-
-    const terrainPositions = dataTerrain.attributes.position.array // Get the vertex positions of the terrain
-    const terrainWidth = PLANE_SIZE // Match your terrain size
-    const terrainDepth = PLANE_SIZE
-
     for (let i = 0; i < BLADE_COUNT; i++) {
       const VERTEX_COUNT = 5
       const surfaceMin = (PLANE_SIZE / 2) * -1
       const surfaceMax = PLANE_SIZE / 2
 
-      const r = (Math.random() * terrainWidth) / 2
+      const r = (Math.random() * PLANE_SIZE) / 2
       const theta = Math.random() * 2 * Math.PI
       const x = r * Math.cos(theta)
       const z = r * Math.sin(theta)
 
-      const y = getHeightAt(x, z, terrainPositions, terrainWidth, terrainDepth)
+      if (!dataTerrain) return
+      //
+      const y1 = getHeightAt(x, z, dataTerrain)
+      const y = y1
+      console.log(y)
       const pos = new THREE.Vector3(x, y, z)
 
       const uv = [convertRange(pos.x, surfaceMin, surfaceMax, 0, 1), convertRange(pos.z, surfaceMin, surfaceMax, 0, 1)]

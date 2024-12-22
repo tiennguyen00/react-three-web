@@ -10,9 +10,9 @@ const Experience = () => {
   return (
     <>
       <Light />
-      {/* <Grass /> */}
-      <Brush />
-      {/* <Terrain /> */}
+      <Grass />
+      {/* <Brush /> */}
+      <Terrain />
       {/* <Character /> */}
     </>
   )
