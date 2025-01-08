@@ -28,7 +28,8 @@ const Character = () => {
         // autoBalanceDampingC={0.04}
         // autoBalanceSpringOnY={0.7}
         // autoBalanceDampingOnY={0.05}
-        disableFollowCam={true}
+        // disableFollowCam={true}
+        mode='CameraBasedMovement'
       >
         <mesh castShadow>
           <capsuleGeometry args={[0.3, 0.7]} />

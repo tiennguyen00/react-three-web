@@ -13,7 +13,7 @@ const Experience = () => {
       <Grass />
       {/* <Brush /> */}
       <Terrain />
-      {/* <Character /> */}
+      <Character />
     </>
   )
 }

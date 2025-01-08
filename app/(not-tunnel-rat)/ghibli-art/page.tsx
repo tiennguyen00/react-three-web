@@ -9,7 +9,7 @@ const Page = () => {
   return (
     <Canvas
       id='ghibli-art-canvas'
-      className='fixed left-0 top-0 flex outline-none'
+      className='fixed top-0 left-0 flex outline-none'
       camera={{
         position: [14.4666, 2.0365, 5.556165],
       }}
@@ -18,6 +18,11 @@ const Page = () => {
         antialias: true,
         alpha: true,
         toneMappingExposure: 1.0,
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType === 'mouse') {
+          ;(e.target as HTMLCanvasElement).requestPointerLock()
+        }
       }}
       shadows
     >

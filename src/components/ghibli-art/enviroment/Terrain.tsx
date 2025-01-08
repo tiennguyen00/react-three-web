@@ -7,11 +7,10 @@ import vertex from '../../shaders/terrain.vert'
 import fragment from '../../shaders/terrain.frag'
 import { useEffect, useMemo, useRef } from 'react'
 import { useControls } from 'leva'
-import { useGLTF, useTexture } from '@react-three/drei'
+import { useGLTF } from '@react-three/drei'
 import { useTerrainGeometry } from '@/store'
-import { PLANE_SIZE } from './Grass'
 
-const PLANE_SIZE_1 = 50
+const PLANE_SIZE = 50
 
 const Terrain = () => {
   const planeRef = useRef<THREE.Mesh>(null)
@@ -59,10 +58,10 @@ const Terrain = () => {
     <group>
       <mesh castShadow>
         <Geometry>
-          <Base scale={[PLANE_SIZE_1 + 1, 2, PLANE_SIZE_1 + 1]}>
+          <Base scale={[PLANE_SIZE + 1, 2, PLANE_SIZE + 1]}>
             <boxGeometry />
           </Base>
-          <Subtraction scale={[PLANE_SIZE_1, 2.1, PLANE_SIZE_1]}>
+          <Subtraction scale={[PLANE_SIZE, 2.1, PLANE_SIZE]}>
             <boxGeometry />
           </Subtraction>
         </Geometry>
@@ -81,7 +80,7 @@ const Terrain = () => {
           })
         }
       >
-        <planeGeometry args={[PLANE_SIZE_1, PLANE_SIZE_1, PLANE_SIZE_1 * 10, PLANE_SIZE_1 * 10]} />
+        <planeGeometry args={[PLANE_SIZE, PLANE_SIZE, PLANE_SIZE * 10, PLANE_SIZE * 10]} />
         <CustomShaderMaterial<typeof THREE.MeshStandardMaterial>
           baseMaterial={THREE.MeshStandardMaterial}
           metalness={0}
@@ -101,7 +100,7 @@ const Terrain2 = () => {
   const { setData } = useTerrainGeometry()
 
   useEffect(() => {
-    setData(roughPlane.nodes.roughPlan.geometry)
+    setData(roughPlane.scene.children[0].geometry)
     // Receive Shadows
     roughPlane.scene.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
@@ -119,24 +118,4 @@ const Terrain2 = () => {
   )
 }
 
-const Terrain3 = () => {
-  const { setData } = useTerrainGeometry()
-  const heightMap = useTexture('/img/heightMap/1.png')
-
-  useEffect(() => {
-    if (!heightMap) return
-    heightMap.wrapS = heightMap.wrapT = THREE.RepeatWrapping
-    setData(heightMap)
-  }, [heightMap])
-
-  return (
-    <RigidBody type='fixed' colliders='trimesh'>
-      <mesh rotation-x={-Math.PI / 2} position-y={-0.5}>
-        <planeGeometry args={[PLANE_SIZE, PLANE_SIZE, 512, 512]} />
-        <meshStandardMaterial color={'gray'} displacementMap={heightMap} displacementScale={4} />
-      </mesh>
-    </RigidBody>
-  )
-}
-
-export default Terrain3
+export default Terrain2
