@@ -4,15 +4,29 @@ import * as THREE from 'three'
 import vertexShader from './vertex.vert'
 import fragmentShader from './fragment.frag'
 import simVertex from './simVertex.vert'
-import simFragment from './simFragment.frag'
+import simFragmentPosition from './simFragment.frag'
+import simFragmentVelocity from './simFragmentVelocity.frag'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useScreen } from '@/utils/useScreen'
+import { GPUComputationRenderer, Variable } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
+
 function lerp(a: number, b: number, n: number) {
   return (1 - n) * a + n * b
 }
 
 const Experience = () => {
-  const { camera, pointer, scene } = useThree()
+  const { camera, pointer, scene, gl } = useThree()
+
+  const gpuCompute = useRef<GPUComputationRenderer>(null!)
+  const positionVariable = useRef<Variable | null>(null)
+  const velocityVariable = useRef<Variable | null>(null)
+  const positionUniforms = useRef<{
+    [uniform: string]: THREE.IUniform<any>
+  } | null>(null)
+  const velocityUniforms = useRef<{
+    [uniform: string]: THREE.IUniform<any>
+  } | null>(null)
+
   const { width, height } = useScreen()
   const raycaster = useRef<THREE.Raycaster>(new THREE.Raycaster())
   const shaderMaterial = useRef<THREE.ShaderMaterial>(null!)
@@ -52,6 +66,70 @@ const Experience = () => {
     return { dataTexture }
   }, [])
 
+  let getVelocitiesOnSphere = useMemo(() => {
+    const data = new Float32Array(4 * number)
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const index = i * size + j
+
+        // generate point on a sphere
+        let theta = Math.random() * Math.PI * 2
+        let phi = Math.acos(Math.random() * 2 - 1) //
+        // let phi = Math.random() * Math.PI //
+        let x = Math.sin(phi) * Math.cos(theta)
+        let y = Math.sin(phi) * Math.sin(theta)
+        let z = Math.cos(phi)
+
+        data[4 * index] = 0
+        data[4 * index + 1] = 0
+        data[4 * index + 2] = 0
+        data[4 * index + 3] = 0
+      }
+    }
+
+    let dataTexture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat, THREE.FloatType)
+    dataTexture.needsUpdate = true
+
+    return { dataTexture }
+  }, [])
+
+  // Switch to GPGPU and then add the velocity
+  const initGPGPU = () => {
+    const pointOnASphere = getPointsOnSphere.dataTexture
+    const velocitiesOnSphere = getVelocitiesOnSphere.dataTexture
+
+    gpuCompute.current = new GPUComputationRenderer(size, size, gl)
+
+    positionVariable.current = gpuCompute.current.addVariable('uCurrentPosition', simFragmentPosition, pointOnASphere)
+    velocityVariable.current = gpuCompute.current.addVariable(
+      'uCurrentVelocity',
+      simFragmentVelocity,
+      velocitiesOnSphere,
+    )
+
+    gpuCompute.current.setVariableDependencies(positionVariable.current, [
+      positionVariable.current,
+      velocityVariable.current,
+    ])
+    gpuCompute.current.setVariableDependencies(velocityVariable.current, [
+      velocityVariable.current,
+      positionVariable.current,
+    ])
+
+    positionUniforms.current = positionVariable.current.material.uniforms
+    velocityUniforms.current = velocityVariable.current.material.uniforms
+
+    positionUniforms.current!.uTime = { value: 0 }
+    positionUniforms.current!.uMouse = { value: new THREE.Vector3(0, 0, 0) }
+    positionUniforms.current!.uOriginalPosition = { value: pointOnASphere }
+
+    velocityUniforms.current!.uTime = { value: 0 }
+    velocityUniforms.current!.uMouse = { value: new THREE.Vector3(0, 0, 0) }
+    velocityUniforms.current!.uOriginalPosition = { value: pointOnASphere }
+
+    gpuCompute.current.init()
+  }
+
   const setUpFBO = useMemo(() => {
     const data = new Float32Array(4 * number)
     for (let i = 0; i < size; i++) {
@@ -81,7 +159,7 @@ const Experience = () => {
         uOriginalPosition1: { value: getPointsOnSphere.dataTexture },
       },
       vertexShader: simVertex,
-      fragmentShader: simFragment,
+      fragmentShader: simFragmentPosition,
     })
     simMaterial.current.needsUpdate = true
     const simMesh = new THREE.Mesh(geo, simMaterial.current)
@@ -131,25 +209,29 @@ const Experience = () => {
     const { clock, gl, scene, camera } = state
 
     // Use the current render target from our ref
-    gl.setRenderTarget(renderTargetRef.current.current)
-    gl.render(sceneFBO.current, cameraFBO.current)
-    gl.setRenderTarget(null)
+    // gl.setRenderTarget(renderTargetRef.current.current)
+    // gl.render(sceneFBO.current, cameraFBO.current)
+    // gl.setRenderTarget(null)
+    gpuCompute.current.compute()
     gl.render(scene, camera)
 
     // Swap render targets in our ref
-    const temp = renderTargetRef.current.current
-    renderTargetRef.current.current = renderTargetRef.current.next
-    renderTargetRef.current.next = temp
+    // const temp = renderTargetRef.current.current
+    // renderTargetRef.current.current = renderTargetRef.current.next
+    // renderTargetRef.current.next = temp
 
-    if (shaderMaterial.current) {
-      shaderMaterial.current.uniforms.time.value = clock.getElapsedTime()
-      shaderMaterial.current.uniforms.uTexture.value = renderTargetRef.current.current.texture
-    }
-    if (simMaterial.current) {
-      simMaterial.current.uniforms.uCurrentPosition.value = renderTargetRef.current.next.texture
-      simMaterial.current.uniforms.uTime.value = clock.getElapsedTime()
+    if (positionVariable.current) {
+      // shaderMaterial.current.uniforms.time.value = clock.getElapsedTime()
+      // shaderMaterial.current.uniforms.uTexture.value = renderTargetRef.current.current.texture
+      positionUniforms.current!.uTime.value = clock.getElapsedTime()
+      shaderMaterial.current.uniforms.uTexture.value = gpuCompute.current.getCurrentRenderTarget(
+        positionVariable.current,
+      ).texture
     }
   })
+  useEffect(() => {
+    initGPGPU()
+  }, [])
 
   useEffect(() => {
     const planeMesh = new THREE.Mesh(
@@ -168,7 +250,11 @@ const Experience = () => {
       const intersects = raycaster.current.intersectObjects([planeMesh])
       if (intersects.length > 0) {
         dummy.position.copy(intersects[0].point)
-        if (simMaterial.current) simMaterial.current.uniforms.uMouse.value = intersects[0].point
+        if (simMaterial.current) {
+          simMaterial.current.uniforms.uMouse.value = intersects[0].point
+          positionUniforms.current!.uMouse.value = intersects[0].point
+          velocityUniforms.current!.uMouse.value = intersects[0].point
+        }
       }
     }
 
