@@ -1,4 +1,4 @@
-import { CycleRaycast, useFBO } from '@react-three/drei'
+import { CycleRaycast, useFBO, useGLTF } from '@react-three/drei'
 import { useEffect, useCallback, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import vertexShader from './vertex.vert'
@@ -9,6 +9,8 @@ import simFragmentVelocity from './simFragmentVelocity.frag'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useScreen } from '@/utils/useScreen'
 import { GPUComputationRenderer, Variable } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
+import { DuckModel } from './DuckModel'
+import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js'
 
 function lerp(a: number, b: number, n: number) {
   return (1 - n) * a + n * b
@@ -17,6 +19,7 @@ function lerp(a: number, b: number, n: number) {
 const Experience = () => {
   const { camera, pointer, scene, gl } = useThree()
 
+  const sampler = useRef<MeshSurfaceSampler>(null!)
   const gpuCompute = useRef<GPUComputationRenderer>(null!)
   const positionVariable = useRef<Variable | null>(null)
   const velocityVariable = useRef<Variable | null>(null)
@@ -66,6 +69,37 @@ const Experience = () => {
     return { dataTexture }
   }, [])
 
+  let getPointsOnDuck = useMemo(() => {
+    if (!sampler.current) return
+    const data = new Float32Array(4 * number)
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const index = i * size + j
+
+        const position = new THREE.Vector3()
+        sampler.current.sample(position)
+
+        // generate point on a sphere
+        let theta = Math.random() * Math.PI * 2
+        let phi = Math.acos(Math.random() * 2 - 1) //
+        // let phi = Math.random() * Math.PI //
+        let x = Math.sin(phi) * Math.cos(theta)
+        let y = Math.sin(phi) * Math.sin(theta)
+        let z = Math.cos(phi)
+
+        data[4 * index] = position.x
+        data[4 * index + 1] = position.y
+        data[4 * index + 2] = position.z
+        data[4 * index + 3] = (Math.random() - 0.5) * 0.01
+      }
+    }
+
+    let dataTexture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat, THREE.FloatType)
+    dataTexture.needsUpdate = true
+
+    return { dataTexture }
+  }, [sampler.current])
+
   let getVelocitiesOnSphere = useMemo(() => {
     const data = new Float32Array(4 * number)
     for (let i = 0; i < size; i++) {
@@ -95,7 +129,7 @@ const Experience = () => {
 
   // Switch to GPGPU and then add the velocity
   const initGPGPU = () => {
-    const pointOnASphere = getPointsOnSphere.dataTexture
+    const pointOnASphere = getPointsOnDuck?.dataTexture
     const velocitiesOnSphere = getVelocitiesOnSphere.dataTexture
 
     gpuCompute.current = new GPUComputationRenderer(size, size, gl)
@@ -131,6 +165,7 @@ const Experience = () => {
   }
 
   const setUpFBO = useMemo(() => {
+    if (!getPointsOnDuck) return
     const data = new Float32Array(4 * number)
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
@@ -154,9 +189,9 @@ const Experience = () => {
         uMouse: { value: new THREE.Vector3(0, 0, 0) },
         uProgress: { value: 0 },
         uTime: { value: 0 },
-        uCurrentPosition: { value: getPointsOnSphere.dataTexture },
-        uOriginalPosition: { value: getPointsOnSphere.dataTexture },
-        uOriginalPosition1: { value: getPointsOnSphere.dataTexture },
+        uCurrentPosition: { value: getPointsOnDuck.dataTexture },
+        uOriginalPosition: { value: getPointsOnDuck.dataTexture },
+        uOriginalPosition1: { value: getPointsOnDuck.dataTexture },
       },
       vertexShader: simVertex,
       fragmentShader: simFragmentPosition,
@@ -166,7 +201,7 @@ const Experience = () => {
     sceneFBO.current.add(simMesh)
 
     return { positions }
-  }, [getPointsOnSphere])
+  }, [getPointsOnDuck])
 
   const renderTargetA = useFBO(size, size, {
     minFilter: THREE.NearestFilter,
@@ -212,6 +247,7 @@ const Experience = () => {
     // gl.setRenderTarget(renderTargetRef.current.current)
     // gl.render(sceneFBO.current, cameraFBO.current)
     // gl.setRenderTarget(null)
+    if (!sampler.current) return
     gpuCompute.current.compute()
     gl.render(scene, camera)
 
@@ -229,17 +265,25 @@ const Experience = () => {
       ).texture
     }
   })
+
+  const duckModel = useGLTF('/models/suzanne.glb')
   useEffect(() => {
-    initGPGPU()
+    sampler.current = new MeshSurfaceSampler(duckModel.scene.children[0] as THREE.Mesh)
+    console.log('sampler.current: ', sampler.current)
+    sampler.current.build()
   }, [])
 
   useEffect(() => {
-    const planeMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 30, 30),
+    if (getPointsOnDuck) initGPGPU()
+  }, [getPointsOnDuck])
+
+  useEffect(() => {
+    const raycasterMesh = new THREE.Mesh(
+      duckModel.scene.children[0].geometry,
       new THREE.MeshBasicMaterial({ visible: false }),
     )
     const dummy = new THREE.Mesh(new THREE.SphereGeometry(0.01, 32, 32), new THREE.MeshNormalMaterial())
-    scene.add(planeMesh)
+    scene.add(raycasterMesh)
     scene.add(dummy)
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -247,7 +291,7 @@ const Experience = () => {
       pointer.y = -(e.clientY / height) * 2 + 1
       raycaster.current.setFromCamera(pointer, camera)
 
-      const intersects = raycaster.current.intersectObjects([planeMesh])
+      const intersects = raycaster.current.intersectObjects([raycasterMesh])
       if (intersects.length > 0) {
         dummy.position.copy(intersects[0].point)
         if (simMaterial.current) {
@@ -261,7 +305,7 @@ const Experience = () => {
     window.addEventListener('mousemove', handleMouseMove)
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
-      scene.remove(planeMesh)
+      scene.remove(raycasterMesh)
       scene.remove(dummy)
     }
   }, [camera, width, height, pointer, scene])
@@ -283,7 +327,7 @@ const Experience = () => {
           ref={shaderMaterial}
           uniforms={{
             time: new THREE.Uniform(0),
-            uTexture: new THREE.Uniform(setUpFBO.positions),
+            uTexture: new THREE.Uniform(setUpFBO?.positions),
           }}
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
