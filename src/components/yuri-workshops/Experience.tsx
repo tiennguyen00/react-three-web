@@ -9,8 +9,8 @@ import simFragmentVelocity from './simFragmentVelocity.frag'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useScreen } from '@/utils/useScreen'
 import { GPUComputationRenderer, Variable } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
-import { DuckModel } from './DuckModel'
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js'
+import vertexInstance from './vertexInstance.vert'
 
 function lerp(a: number, b: number, n: number) {
   return (1 - n) * a + n * b
@@ -39,7 +39,7 @@ const Experience = () => {
   cameraFBO.current.lookAt(new THREE.Vector3(0, 0, 0))
 
   const simMaterial = useRef<THREE.ShaderMaterial>(null!)
-  const size = 512,
+  const size = 16,
     number = size * size
 
   let getPointsOnSphere = useMemo(() => {
@@ -269,8 +269,32 @@ const Experience = () => {
   const duckModel = useGLTF('/models/suzanne.glb')
   useEffect(() => {
     sampler.current = new MeshSurfaceSampler(duckModel.scene.children[0] as THREE.Mesh)
-    console.log('sampler.current: ', sampler.current)
     sampler.current.build()
+
+    // Building Instanced Mesh with physics
+    const geometryInstanced = new THREE.BoxGeometry(0.01, 0.01, 0.01)
+    shaderMaterial.current = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: setUpFBO?.positions },
+        time: { value: 0 },
+        uVelocity: { value: null },
+      },
+      vertexShader: vertexInstance,
+      fragmentShader: fragmentShader,
+    })
+    const mesh = new THREE.InstancedMesh(geometryInstanced, shaderMaterial.current, number)
+    // Create instance uv reference
+    let uvInstance = new Float32Array(number * 2)
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const index = i * size + j
+        uvInstance[2 * index] = j / (size - 1)
+        uvInstance[2 * index + 1] = i / (size - 1)
+      }
+    }
+    geometryInstanced.setAttribute('uvRef', new THREE.InstancedBufferAttribute(uvInstance, 2))
+
+    scene.add(mesh)
   }, [])
 
   useEffect(() => {
@@ -318,7 +342,8 @@ const Experience = () => {
         keyCode={9} // Keyboard events (default: 9 [Tab])
         onChanged={(objects, cycle) => console.log(objects, cycle)} // Optional onChanged event
       /> */}
-      <points>
+
+      {/* <points>
         <bufferGeometry>
           <bufferAttribute attach='attributes-position' count={positions.length / 3} array={positions} itemSize={3} />
           <bufferAttribute attach='attributes-uv' count={uvs.length / 2} array={uvs} itemSize={2} />
@@ -336,7 +361,7 @@ const Experience = () => {
           transparent
           needsUpdate={true}
         />
-      </points>
+      </points> */}
     </>
   )
 }
