@@ -39,7 +39,7 @@ const Experience = () => {
   cameraFBO.current.lookAt(new THREE.Vector3(0, 0, 0))
 
   const simMaterial = useRef<THREE.ShaderMaterial>(null!)
-  const size = 16,
+  const size = 128,
     number = size * size
 
   let getPointsOnSphere = useMemo(() => {
@@ -164,6 +164,7 @@ const Experience = () => {
     gpuCompute.current.init()
   }
 
+  // This return the DataTexture for FBO
   const setUpFBO = useMemo(() => {
     if (!getPointsOnDuck) return
     const data = new Float32Array(4 * number)
@@ -259,6 +260,9 @@ const Experience = () => {
     if (positionVariable.current) {
       // shaderMaterial.current.uniforms.time.value = clock.getElapsedTime()
       // shaderMaterial.current.uniforms.uTexture.value = renderTargetRef.current.current.texture
+      shaderMaterial.current.uniforms.uVelocity.value = gpuCompute.current.getCurrentRenderTarget(
+        velocityVariable.current,
+      ).texture
       positionUniforms.current!.uTime.value = clock.getElapsedTime()
       shaderMaterial.current.uniforms.uTexture.value = gpuCompute.current.getCurrentRenderTarget(
         positionVariable.current,
@@ -292,7 +296,7 @@ const Experience = () => {
         uvInstance[2 * index + 1] = i / (size - 1)
       }
     }
-    geometryInstanced.setAttribute('uvRef', new THREE.InstancedBufferAttribute(uvInstance, 2))
+    geometryInstanced.setAttribute('uvRef', new THREE.InstancedBufferAttribute(uvs, 2))
 
     scene.add(mesh)
   }, [])
@@ -336,6 +340,25 @@ const Experience = () => {
 
   return (
     <>
+      {/* <mesh>
+        <coneGeometry args={[1, 1, 5]} />
+        <shaderMaterial
+          vertexShader={`
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }  
+          `}
+          fragmentShader={`
+            varying vec2 vUv;
+
+            void main() {
+                gl_FragColor = vec4(vUv, 1., 1.0); 
+            }
+        `}
+        />
+      </mesh> */}
       {/* <CycleRaycast
         preventDefault={true} // Call event.preventDefault() (default: true)
         scroll={true} // Wheel events (default: true)

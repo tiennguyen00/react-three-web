@@ -19,7 +19,7 @@ void main() {
     // particle attraction to shape force
     vec3 direction = normalize( original - position );
     float dist = length( original - position );
-    if( dist > 0.01 ) {
+    if( dist > 0.1 ) {
         velocity += direction  * 0.001;
     }
     
@@ -28,7 +28,7 @@ void main() {
 
     // mouse repel force
     float mouseDistance = distance( position, uMouse );
-    float maxDistance = 0.1;
+    float maxDistance = 0.25;
     if( mouseDistance < maxDistance ) {
         vec3 direction = normalize( position - uMouse );
         velocity += direction * ( 1.0 - mouseDistance / maxDistance ) * 0.01;
