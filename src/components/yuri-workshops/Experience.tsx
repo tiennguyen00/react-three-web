@@ -1,4 +1,4 @@
-import { CycleRaycast, useFBO, useGLTF } from '@react-three/drei'
+import { CycleRaycast, useFBO, useGLTF, useTexture } from '@react-three/drei'
 import { useEffect, useCallback, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import vertexShader from './vertex.vert'
@@ -19,6 +19,7 @@ function lerp(a: number, b: number, n: number) {
 const Experience = () => {
   const { camera, pointer, scene, gl } = useThree()
 
+  const matcap = useTexture('/img/matcaps/occult.png')
   const sampler = useRef<MeshSurfaceSampler>(null!)
   const gpuCompute = useRef<GPUComputationRenderer>(null!)
   const positionVariable = useRef<Variable | null>(null)
@@ -39,7 +40,7 @@ const Experience = () => {
   cameraFBO.current.lookAt(new THREE.Vector3(0, 0, 0))
 
   const simMaterial = useRef<THREE.ShaderMaterial>(null!)
-  const size = 128,
+  const size = 256,
     number = size * size
 
   let getPointsOnSphere = useMemo(() => {
@@ -282,6 +283,7 @@ const Experience = () => {
         uTexture: { value: setUpFBO?.positions },
         time: { value: 0 },
         uVelocity: { value: null },
+        uMatcap: { value: matcap },
       },
       vertexShader: vertexInstance,
       fragmentShader: fragmentShader,
