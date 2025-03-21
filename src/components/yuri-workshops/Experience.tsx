@@ -1,5 +1,5 @@
-import { CycleRaycast, useFBO, useGLTF, useTexture } from '@react-three/drei'
-import { useEffect, useCallback, useMemo, useRef } from 'react'
+import { useFBO, useGLTF, useTexture } from '@react-three/drei'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import vertexShader from './vertex.vert'
 import fragmentShader from './fragment.frag'
@@ -11,10 +11,7 @@ import { useScreen } from '@/utils/useScreen'
 import { GPUComputationRenderer, Variable } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js'
 import vertexInstance from './vertexInstance.vert'
-
-function lerp(a: number, b: number, n: number) {
-  return (1 - n) * a + n * b
-}
+import { lerp } from 'three/src/math/MathUtils'
 
 const Experience = () => {
   const { camera, pointer, scene, gl } = useThree()
@@ -181,14 +178,12 @@ const Experience = () => {
     const positions = new THREE.DataTexture(data, size, size, THREE.RGBAFormat, THREE.FloatType)
 
     // create FBO scene
-    cameraFBO.current.position.z = 1
-    cameraFBO.current.lookAt(new THREE.Vector3(0, 0, 0))
     const geo = new THREE.PlaneGeometry(2, 2, 2, 2)
 
     simMaterial.current = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        uMouse: { value: new THREE.Vector3(0, 0, 0) },
+        uMouse: { value: null },
         uProgress: { value: 0 },
         uTime: { value: 0 },
         uCurrentPosition: { value: getPointsOnDuck.dataTexture },
@@ -336,13 +331,16 @@ const Experience = () => {
       raycaster.current.setFromCamera(pointer, camera)
 
       const intersects = raycaster.current.intersectObjects([raycasterMesh])
+      if (!simMaterial.current) return
       if (intersects.length > 0) {
         dummy.position.copy(intersects[0].point)
-        if (simMaterial.current) {
-          simMaterial.current.uniforms.uMouse.value = intersects[0].point
-          positionUniforms.current!.uMouse.value = intersects[0].point
-          velocityUniforms.current!.uMouse.value = intersects[0].point
-        }
+        simMaterial.current.uniforms.uMouse.value = intersects[0].point
+        positionUniforms.current!.uMouse.value = intersects[0].point
+        velocityUniforms.current!.uMouse.value = intersects[0].point
+      } else {
+        simMaterial.current.uniforms.uMouse.value = new THREE.Vector3(0, 99, 0)
+        positionUniforms.current!.uMouse.value = new THREE.Vector3(0, 99, 0)
+        velocityUniforms.current!.uMouse.value = new THREE.Vector3(0, 99, 0)
       }
     }
 
@@ -353,56 +351,6 @@ const Experience = () => {
       scene.remove(dummy)
     }
   }, [camera, width, height, pointer, scene])
-
-  return (
-    <>
-      {/* <mesh>
-        <coneGeometry args={[1, 1, 5]} />
-        <shaderMaterial
-          vertexShader={`
-            varying vec2 vUv;
-            void main() {
-              vUv = uv;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }  
-          `}
-          fragmentShader={`
-            varying vec2 vUv;
-
-            void main() {
-                gl_FragColor = vec4(vUv, 1., 1.0); 
-            }
-        `}
-        />
-      </mesh> */}
-      {/* <CycleRaycast
-        preventDefault={true} // Call event.preventDefault() (default: true)
-        scroll={true} // Wheel events (default: true)
-        keyCode={9} // Keyboard events (default: 9 [Tab])
-        onChanged={(objects, cycle) => console.log(objects, cycle)} // Optional onChanged event
-      /> */}
-
-      {/* <points>
-        <bufferGeometry>
-          <bufferAttribute attach='attributes-position' count={positions.length / 3} array={positions} itemSize={3} />
-          <bufferAttribute attach='attributes-uv' count={uvs.length / 2} array={uvs} itemSize={2} />
-        </bufferGeometry>
-        <shaderMaterial
-          ref={shaderMaterial}
-          uniforms={{
-            time: new THREE.Uniform(0),
-            uTexture: new THREE.Uniform(setUpFBO?.positions),
-          }}
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
-          depthTest={false}
-          depthWrite={false}
-          transparent
-          needsUpdate={true}
-        />
-      </points> */}
-    </>
-  )
 }
 
 export default Experience

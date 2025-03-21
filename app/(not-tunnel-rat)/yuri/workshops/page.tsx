@@ -8,13 +8,13 @@ const Page = () => {
   return (
     <Canvas
       id='yuri-workshops'
-      className='flex fixed top-0 left-0 outline-none'
+      className='fixed left-0 top-0 flex outline-none'
       shadows
       camera={{
         fov: 70,
         near: 0.01,
         far: 10,
-        position: [0, 0, 3],
+        position: [0, 0, 2],
       }}
       gl={{
         alpha: true,
