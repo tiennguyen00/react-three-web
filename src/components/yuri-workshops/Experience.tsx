@@ -249,7 +249,7 @@ const Experience = () => {
     // gl.setRenderTarget(renderTargetRef.current.current)
     // gl.render(sceneFBO.current, cameraFBO.current)
     // gl.setRenderTarget(null)
-    if (!sampler.current) return
+    if (!sampler.current || !gpuCompute.current) return
     gpuCompute.current.compute()
     gl.render(scene, camera)
 
@@ -257,23 +257,40 @@ const Experience = () => {
     // const temp = renderTargetRef.current.current
     // renderTargetRef.current.current = renderTargetRef.current.next
     // renderTargetRef.current.next = temp
+    positionUniforms.current!.uTime.value = clock.getElapsedTime()
 
-    if (positionVariable.current) {
-      // shaderMaterial.current.uniforms.time.value = clock.getElapsedTime()
-      // shaderMaterial.current.uniforms.uTexture.value = renderTargetRef.current.current.texture
+    if (velocityVariable.current) {
       shaderMaterial.current.uniforms.uVelocity.value = gpuCompute.current.getCurrentRenderTarget(
         velocityVariable.current,
       ).texture
-      positionUniforms.current!.uTime.value = clock.getElapsedTime()
+    }
+    if (positionVariable.current) {
+      // shaderMaterial.current.uniforms.time.value = clock.getElapsedTime()
+      // shaderMaterial.current.uniforms.uTexture.value = renderTargetRef.current.current.texture
       shaderMaterial.current.uniforms.uTexture.value = gpuCompute.current.getCurrentRenderTarget(
         positionVariable.current,
       ).texture
     }
   })
+  const model = useGLTF('/models/wooden-dragon.glb')
+  const meshModel = useMemo(() => {
+    if (!model) return
+    console.log('Checking model hierarchy:', model)
+    // model.scene.scale.set(0.01, 0.01, 0.01)
 
-  const duckModel = useGLTF('/models/suzanne.glb')
+    let meshes = []
+
+    model.scene.traverse((child) => {
+      if (child.isMesh) {
+        meshes.push(child)
+      }
+    })
+    console.log(meshes)
+    return meshes[0]
+  }, [model])
   useEffect(() => {
-    sampler.current = new MeshSurfaceSampler(duckModel.scene.children[0] as THREE.Mesh)
+    sampler.current = new MeshSurfaceSampler(meshModel as THREE.Mesh)
+    console.log('sampler.current: ', sampler.current)
     sampler.current.build()
 
     // Building Instanced Mesh with physics
@@ -308,10 +325,7 @@ const Experience = () => {
   }, [getPointsOnDuck])
 
   useEffect(() => {
-    const raycasterMesh = new THREE.Mesh(
-      duckModel.scene.children[0].geometry,
-      new THREE.MeshBasicMaterial({ visible: false }),
-    )
+    const raycasterMesh = new THREE.Mesh(meshModel.geometry, new THREE.MeshBasicMaterial({ visible: false }))
     const dummy = new THREE.Mesh(new THREE.SphereGeometry(0.01, 32, 32), new THREE.MeshNormalMaterial())
     scene.add(raycasterMesh)
     scene.add(dummy)
