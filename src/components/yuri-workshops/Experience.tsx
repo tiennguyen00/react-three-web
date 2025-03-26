@@ -273,14 +273,13 @@ const Experience = () => {
     console.log('Checking model hierarchy:', model)
     // model.scene.scale.set(0.01, 0.01, 0.01)
 
-    let meshes = []
+    let meshes: THREE.Mesh[] = []
 
     model.scene.traverse((child) => {
       if (child.isMesh) {
-        meshes.push(child)
+        meshes.push(child as THREE.Mesh)
       }
     })
-    console.log(meshes)
     return meshes[0]
   }, [model])
   useEffect(() => {

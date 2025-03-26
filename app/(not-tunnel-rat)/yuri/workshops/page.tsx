@@ -1,32 +1,15 @@
-'use client'
-import Experience from '@/components/yuri-workshops/Experience'
-import { OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
-import { Perf } from 'r3f-perf'
+import Link from 'next/link'
 
 const Page = () => {
   return (
-    <Canvas
-      id='yuri-workshops'
-      className='fixed left-0 top-0 flex outline-none'
-      shadows
-      camera={{
-        fov: 70,
-        near: 0.01,
-        far: 10,
-        position: [0, 0, 2],
-      }}
-      gl={{
-        alpha: true,
-        antialias: true,
-      }}
-    >
-      <color attach='background' args={['#222']} />
-      <Perf position='top-left' />
-      <axesHelper args={[25]} position={[0, 1, 0]} />
-      <OrbitControls />
-      <Experience />
-    </Canvas>
+    <div className='flex h-screen w-full items-center justify-center space-x-3 bg-black/70'>
+      <Link href='/yuri/workshops/1' className='rounded-full bg-black/60 p-2 text-white'>
+        1
+      </Link>
+      <Link href='/yuri/workshops/2' className='rounded-full bg-black/60 p-2 text-white'>
+        2
+      </Link>
+    </div>
   )
 }
 
