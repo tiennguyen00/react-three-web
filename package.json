@@ -18,7 +18,7 @@
     "@theatre/core": "^0.7.0",
     "@theatre/r3f": "^0.7.0",
     "@theatre/studio": "^0.7.0",
-    "ecctrl": "^1.0.92",
+    "ecctrl": "^1.0.96",
     "glsl-random": "^0.0.5",
     "gsap": "^3.12.5",
     "next": "^13.4.13",
